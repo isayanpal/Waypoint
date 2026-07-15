@@ -1,26 +1,146 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-manrope);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  /* Waypoint design tokens, exposed as Tailwind utilities (bg-wp-sidebar, text-wp-accent, ...) */
+  --color-wp-sidebar: var(--wp-sidebar-bg);
+  --color-wp-main: var(--wp-main-bg);
+  --color-wp-accent: var(--wp-accent);
+  --color-wp-accent-soft: var(--wp-accent-soft);
+  --color-wp-card-border: var(--wp-card-border);
+  --color-wp-ink-primary: var(--wp-ink-primary);
+  --color-wp-ink-secondary: var(--wp-ink-secondary);
+  --color-wp-ink-tertiary: var(--wp-ink-tertiary);
+
+  --breakpoint-mobile: 47.5rem; /* 760px — matches the sidebar-collapse / drawer breakpoint */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  /* shadcn "primary" drives Button/focus states — mapped to the Waypoint accent so the
+     theme switcher (which only rewrites --wp-accent) repaints every shadcn primitive too. */
+  --primary: var(--wp-accent);
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;
+  --border: var(--wp-card-border);
+  --input: var(--wp-card-border);
+  --ring: var(--wp-accent);
+  --radius: 0.5rem;
+  --sidebar: var(--wp-sidebar-bg);
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: var(--wp-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #232326;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: #27272a;
+  --sidebar-ring: var(--wp-accent);
+
+  /* Indigo Ink — default palette */
+  --wp-sidebar-bg: #17171b;
+  --wp-main-bg: #f7f7f8;
+  --wp-accent: #5457d6;
+  --wp-accent-soft: #b7b8ec;
+  --wp-card-border: #e4e4e7;
+
+  /* Ink/neutrals — constant across all palettes */
+  --wp-ink-primary: #1c1c21;
+  --wp-ink-secondary: #71717a;
+  --wp-ink-tertiary: #a1a1aa;
+
+  /* Status colors — semantic, never theme-swapped */
+  --wp-status-complete-bg: #eaf2ee;
+  --wp-status-complete-text: #3d6e58;
+  --wp-status-progress-bg: #f5f0e4;
+  --wp-status-progress-text: #8a6a2f;
+  --wp-status-notstarted-bg: #f1f1f3;
+  --wp-status-notstarted-text: #75757d;
+
+  /* Radii */
+  --wp-radius-card: 11px;
+  --wp-radius-stat: 9px;
+  --wp-radius-pill: 9999px;
+  --wp-radius-btn: 8px;
+
+  /* Shadows */
+  --wp-shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.2);
+  --wp-shadow-drawer: 0 0 40px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="graphite_gold"] {
+  --wp-sidebar-bg: #1c1a17;
+  --wp-main-bg: #faf8f4;
+  --wp-accent: #a8813f;
+  --wp-accent-soft: #d9be8d;
+  --wp-card-border: #e9e2d6;
+}
+
+:root[data-theme="emerald_slate"] {
+  --wp-sidebar-bg: #121714;
+  --wp-main-bg: #f5f8f7;
+  --wp-accent: #2f7a63;
+  --wp-accent-soft: #9bc9bb;
+  --wp-card-border: #dee7e3;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply font-sans;
+    font-size: 13px;
+  }
+  body {
+    @apply text-wp-ink-primary;
+    background: var(--wp-main-bg);
+  }
 }
