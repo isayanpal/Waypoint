@@ -8,7 +8,7 @@ Personal learning-roadmap platform. Describe a skill you want to learn, get an A
 - **Multi-user, multi-project** — sign up, create multiple skill projects, track each independently.
 - **Progress tracking** — check off topics, monitor phase and project completion.
 - **Portfolio projects** — track hands-on projects tied to a skill's roadmap.
-- **Username or email sign-in** — auth via Supabase, with username-to-email resolution on sign-in.
+- **Username sign-in** — auth via Supabase, with username resolution on sign-in.
 - **Rate-limited generation** — 2 AI roadmap generations per rolling 24h per user, enforced at the database level.
 
 ## Stack

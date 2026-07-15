@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
-import { signInSchema, type SignInInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signInSchema, type SignInInput } from "@/lib/validations/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export function SignInForm() {
   const router = useRouter();
@@ -40,10 +40,16 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="identifier">Username or email</Label>
-        <Input id="identifier" autoComplete="username" {...register("identifier")} />
+        <Label htmlFor="identifier">Username</Label>
+        <Input
+          id="identifier"
+          autoComplete="username"
+          {...register("identifier")}
+        />
         {errors.identifier && (
-          <p className="text-xs text-destructive">{errors.identifier.message}</p>
+          <p className="text-xs text-destructive">
+            {errors.identifier.message}
+          </p>
         )}
       </div>
       <div className="flex flex-col gap-1.5">
@@ -63,7 +69,11 @@ export function SignInForm() {
             tabIndex={-1}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showPassword ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
           </button>
         </div>
         {errors.password && (
