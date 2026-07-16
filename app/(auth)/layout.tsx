@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <rect x="18" y="2" width="4" height="20" rx="1" fill="white" />
             </svg>
           </div>
-          <span className="font-heading text-[15px] font-extrabold tracking-tight">Waypoint</span>
+          <span className="font-heading text-[17px] font-extrabold tracking-tight">Waypoint</span>
         </div>
         {children}
       </div>

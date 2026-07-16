@@ -29,7 +29,7 @@ export function StatusPill({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[10px] font-bold",
+        "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[11.5px] font-bold",
         onClick && "cursor-pointer",
         className
       )}

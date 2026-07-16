@@ -38,8 +38,8 @@ export function GeneratingOverlay() {
         <Sparkles className="size-5 text-wp-accent" strokeWidth={2} />
       </div>
       <div className="flex flex-col items-center gap-1 text-center">
-        <div className="text-[13px] font-semibold">Generating your roadmap…</div>
-        <div className="text-[11.5px] text-wp-ink-secondary transition-opacity duration-300">
+        <div className="text-[15px] font-semibold">Generating your roadmap…</div>
+        <div className="text-[13px] text-wp-ink-secondary transition-opacity duration-300">
           {STEPS[stepIndex]}
         </div>
       </div>

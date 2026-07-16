@@ -6,7 +6,7 @@ export default function SignUpPage() {
   return (
     <Card className="rounded-[11px] border-wp-card-border shadow-none">
       <CardHeader>
-        <CardTitle className="font-heading text-[16px] font-bold">Create your account</CardTitle>
+        <CardTitle className="font-heading text-[18.5px] font-bold">Create your account</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <SignUpForm />

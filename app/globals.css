@@ -137,7 +137,7 @@
   }
   html {
     @apply font-sans;
-    font-size: 13px;
+    font-size: 15px;
   }
   body {
     @apply text-wp-ink-primary;

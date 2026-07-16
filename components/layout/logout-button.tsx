@@ -23,7 +23,7 @@ export function LogoutButton({ showLabel }: { showLabel: boolean }) {
       onClick={handleLogout}
       disabled={loading}
       className={cn(
-        "flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[12px] font-medium text-[#A1A1AA] transition-colors hover:bg-[#232326] hover:text-[#E4E4E7] disabled:opacity-60",
+        "flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[14px] font-medium text-[#A1A1AA] transition-colors hover:bg-[#232326] hover:text-[#E4E4E7] disabled:opacity-60",
         !showLabel && "justify-center"
       )}
     >

@@ -28,7 +28,7 @@ export function CurrentPhaseCard({
       <PhaseWatermarkNumber numLabel={numLabel} size={112} />
       <div className="relative z-10">
         <div className="mb-[2px] flex items-center justify-between gap-[10px]">
-          <div className="min-w-0 truncate font-heading text-[14px] font-bold">{phase.name}</div>
+          <div className="min-w-0 truncate font-heading text-[16px] font-bold">{phase.name}</div>
           <div className="flex shrink-0 items-center gap-[6px]">
             <FractionBadge done={done} total={total} />
             <Link

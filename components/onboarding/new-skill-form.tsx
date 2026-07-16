@@ -8,6 +8,7 @@ import { Sparkles } from "lucide-react";
 import { newSkillSchema, type NewSkillInput } from "@/lib/validations/new-skill";
 import { RoadmapGenerationError, useCreateSkillProjectFromAI } from "@/lib/queries/mutations";
 import { formatResetTime, useAiGenerationUsage } from "@/lib/queries/ai-generations";
+import { useSkillProjects } from "@/lib/queries/skill-projects";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,11 +22,15 @@ import {
 import { GeneratingOverlay } from "@/components/onboarding/generating-overlay";
 import { cn } from "@/lib/utils";
 
+const MAX_SKILL_PROJECTS = 4;
+
 export function NewSkillForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const createSkillProject = useCreateSkillProjectFromAI();
   const { data: usage } = useAiGenerationUsage();
+  const { data: projects } = useSkillProjects();
+  const projectLimitReached = (projects?.length ?? 0) >= MAX_SKILL_PROJECTS;
 
   const {
     register,
@@ -40,7 +45,7 @@ export function NewSkillForm() {
 
   const nameValue = watch("name");
   const limitReached = !!usage && usage.used >= usage.limit;
-  const canSubmit = nameValue.trim().length > 0 && !limitReached;
+  const canSubmit = nameValue.trim().length > 0 && !limitReached && !projectLimitReached;
 
   if (createSkillProject.isPending) {
     return <GeneratingOverlay />;
@@ -60,16 +65,27 @@ export function NewSkillForm() {
         );
         return;
       }
+      if (error instanceof RoadmapGenerationError && error.message === "project_limit_reached") {
+        setServerError(
+          `You can only have ${MAX_SKILL_PROJECTS} skill projects at a time. Delete one to add another.`
+        );
+        return;
+      }
       setServerError("Couldn't generate a roadmap right now. Try again in a moment.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+      {projectLimitReached && (
+        <div className="rounded-[7px] border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12.5px] text-destructive">
+          {`You can only have ${MAX_SKILL_PROJECTS} skill projects at a time. Delete one to add another.`}
+        </div>
+      )}
       {usage && (
         <div
           className={cn(
-            "rounded-[7px] border px-3 py-2 text-[11px]",
+            "rounded-[7px] border px-3 py-2 text-[12.5px]",
             limitReached
               ? "border-destructive/30 bg-destructive/5 text-destructive"
               : "border-wp-card-border bg-wp-card text-wp-ink-secondary"
@@ -83,7 +99,7 @@ export function NewSkillForm() {
         </div>
       )}
       <div>
-        <Label htmlFor="name" className="mb-[5px] block text-[11px] font-semibold text-[#3F3F46]">
+        <Label htmlFor="name" className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
           Skill name
         </Label>
         <Input
@@ -95,7 +111,7 @@ export function NewSkillForm() {
       </div>
 
       <div>
-        <Label htmlFor="goal" className="mb-[5px] block text-[11px] font-semibold text-[#3F3F46]">
+        <Label htmlFor="goal" className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
           Goal &amp; context
         </Label>
         <Textarea
@@ -109,7 +125,7 @@ export function NewSkillForm() {
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[11px] font-semibold text-[#3F3F46]">
+          <Label className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
             Current level
           </Label>
           <Controller
@@ -130,7 +146,7 @@ export function NewSkillForm() {
           />
         </div>
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[11px] font-semibold text-[#3F3F46]">
+          <Label className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
             Timeline
           </Label>
           <Controller
@@ -161,7 +177,7 @@ export function NewSkillForm() {
         type="submit"
         disabled={!canSubmit}
         className={cn(
-          "mt-1 inline-flex w-fit items-center gap-[7px] rounded-[7px] px-[18px] py-[10px] text-[12px] font-semibold text-white",
+          "mt-1 inline-flex w-fit items-center gap-[7px] rounded-[7px] px-[18px] py-[10px] text-[14px] font-semibold text-white",
           canSubmit ? "bg-wp-accent" : "bg-wp-accent-soft"
         )}
       >

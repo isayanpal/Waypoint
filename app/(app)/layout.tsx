@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-wp-main text-[13px]">
+    <div className="flex h-screen w-full overflow-hidden bg-wp-main text-[15px]">
       <div className="hidden shrink-0 mobile:block">
         <AppSidebar variant="desktop" />
       </div>

@@ -44,10 +44,10 @@ export function DeleteProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-[12px] shadow-[var(--wp-shadow-modal)] sm:max-w-[320px]">
         <DialogHeader>
-          <DialogTitle className="font-heading text-[14.5px] font-bold">
+          <DialogTitle className="font-heading text-[16.5px] font-bold">
             Delete &ldquo;{projectName}&rdquo;?
           </DialogTitle>
-          <DialogDescription className="text-[12px] leading-[1.5] text-wp-ink-secondary">
+          <DialogDescription className="text-[14px] leading-[1.5] text-wp-ink-secondary">
             This removes the roadmap, checklist progress, and portfolio project tracker for this
             skill. This can&apos;t be undone.
           </DialogDescription>

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useDashboardStats } from "@/lib/queries/dashboard";
 import { useSkillProject } from "@/lib/queries/skill-projects";
 import { useToggleTopic } from "@/lib/queries/mutations";
+import { Spinner } from "@/components/ui/spinner";
 import { StatRow } from "@/components/dashboard/stat-row";
 import { ProgressCard } from "@/components/dashboard/progress-card";
 import { CurrentPhaseCard } from "@/components/dashboard/current-phase-card";
@@ -18,7 +19,11 @@ export default function DashboardPage() {
   const toggleTopic = useToggleTopic(projectId);
 
   if (!project || !stats) {
-    return <div className="w-full max-w-[1180px] px-[30px] py-[22px] mobile:px-[30px]" />;
+    return (
+      <div className="flex w-full max-w-[1180px] items-center justify-center px-[30px] py-[22px] mobile:px-[30px]">
+        <Spinner className="size-6 text-wp-ink-secondary" />
+      </div>
+    );
   }
 
   const currentIdx = stats.phases.findIndex((p) => p.id === stats.currentPhase.id);
@@ -26,10 +31,10 @@ export default function DashboardPage() {
   return (
     <div className="w-full max-w-[1180px] px-[14px] py-4 pb-8 mobile:px-[30px] mobile:py-[22px] mobile:pb-11">
       <div className="mb-4 flex flex-col gap-[2px]">
-        <div className="truncate font-heading text-[19px] font-extrabold tracking-tight">
+        <div className="truncate font-heading text-[22px] font-extrabold tracking-tight">
           {project.name}
         </div>
-        <div className="text-[11px] text-wp-ink-secondary">Dashboard overview</div>
+        <div className="text-[12.5px] text-wp-ink-secondary">Dashboard overview</div>
       </div>
 
       <StatRow stats={stats} />

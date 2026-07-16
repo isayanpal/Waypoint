@@ -11,6 +11,8 @@ import { SidebarSkillProjectItem } from "@/components/layout/sidebar-skill-proje
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LogoutButton } from "@/components/layout/logout-button";
 
+const MAX_SKILL_PROJECTS = 4;
+
 export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mobile" }) {
   const pathname = usePathname();
   const params = useParams<{ projectId?: string }>();
@@ -21,6 +23,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
   const setMobileNavOpen = useUiStore((s) => s.setMobileNavOpen);
 
   const { data: projects } = useSkillProjects();
+  const projectLimitReached = (projects?.length ?? 0) >= MAX_SKILL_PROJECTS;
 
   const isMobile = variant === "mobile";
   const showLabels = isMobile || !sidebarCollapsed;
@@ -44,7 +47,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           </svg>
         </div>
         {showLabels && (
-          <div className="flex-1 truncate font-heading text-[14px] font-extrabold tracking-tight text-[#FAFAFA]">
+          <div className="flex-1 truncate font-heading text-[16px] font-extrabold tracking-tight text-[#FAFAFA]">
             Waypoint
           </div>
         )}
@@ -98,7 +101,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
       <div className="mx-2 mb-3 h-px bg-[#27272A]" />
 
       {showLabels && (
-        <div className="px-[10px] pb-2 text-[10px] font-bold uppercase tracking-[0.06em] text-[#71717A]">
+        <div className="px-[10px] pb-2 text-[11.5px] font-bold uppercase tracking-[0.06em] text-[#71717A]">
           Skill Projects
         </div>
       )}
@@ -119,16 +122,26 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
 
       <LogoutButton showLabel={showLabels} />
 
-      <Link
-        href="/new-skill"
-        onClick={closeMobileNav}
-        className={cn(
-          "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-[#3F3F46] bg-[#232326] px-[9px] py-[9px] text-[11.5px] font-semibold text-[#E4E4E7] hover:bg-[#2A2A2E]"
-        )}
-      >
-        <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
-        {showLabels && "New skill"}
-      </Link>
+      {projectLimitReached ? (
+        <div
+          title={`You can only have ${MAX_SKILL_PROJECTS} skill projects at a time. Delete one to add another.`}
+          className="mt-2 flex cursor-not-allowed items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-[#3F3F46] bg-[#1B1B1D] px-[9px] py-[9px] text-[13px] font-semibold text-[#52525B]"
+        >
+          <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
+          {showLabels && "New skill"}
+        </div>
+      ) : (
+        <Link
+          href="/new-skill"
+          onClick={closeMobileNav}
+          className={cn(
+            "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-[#3F3F46] bg-[#232326] px-[9px] py-[9px] text-[13px] font-semibold text-[#E4E4E7] hover:bg-[#2A2A2E]"
+          )}
+        >
+          <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
+          {showLabels && "New skill"}
+        </Link>
+      )}
     </div>
   );
 }

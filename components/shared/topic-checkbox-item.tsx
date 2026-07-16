@@ -35,7 +35,7 @@ export function TopicCheckboxItem({
       </span>
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-[12px]",
+          "min-w-0 flex-1 truncate text-[14px]",
           done ? "text-wp-ink-tertiary line-through" : "text-[#27272A]"
         )}
       >

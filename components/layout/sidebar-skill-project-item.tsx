@@ -40,7 +40,7 @@ export function SidebarSkillProjectItem({
           <div className="min-w-0 flex-1">
             <div
               className={cn(
-                "truncate text-[11.5px] font-semibold",
+                "truncate text-[13px] font-semibold",
                 isActive ? "text-[#F4F4F5]" : "text-[#A1A1AA]"
               )}
             >
@@ -51,7 +51,7 @@ export function SidebarSkillProjectItem({
                 pct={project.progressPct}
                 className="flex-1 bg-[#3F3F46]"
               />
-              <div className="shrink-0 font-mono text-[9.5px] text-[#71717A]">
+              <div className="shrink-0 font-mono text-[11px] text-[#71717A]">
                 {project.progressPct}%
               </div>
             </div>

@@ -21,7 +21,7 @@ export function SidebarNavItem({
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[12px] font-medium transition-colors",
+        "flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[14px] font-medium transition-colors",
         active ? "bg-[#232326] text-[#F4F4F5]" : "text-[#A1A1AA] hover:bg-[#232326] hover:text-[#F4F4F5]"
       )}
     >

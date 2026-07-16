@@ -59,6 +59,19 @@ export async function POST(request: Request) {
     );
   }
 
+  const { count: projectCount, error: countError } = await supabase
+    .from("skill_projects")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  if (countError) {
+    return NextResponse.json({ error: "project_count_check_failed" }, { status: 500 });
+  }
+
+  if ((projectCount ?? 0) >= 4) {
+    return NextResponse.json({ error: "project_limit_reached" }, { status: 403 });
+  }
+
   const { data: allowed, error: rateLimitError } = await supabase.rpc(
     "check_and_log_ai_generation",
     { p_user_id: user.id }
