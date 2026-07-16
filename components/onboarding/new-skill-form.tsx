@@ -6,7 +6,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Sparkles } from "lucide-react";
 import { newSkillSchema, type NewSkillInput } from "@/lib/validations/new-skill";
-import { useCreateSkillProjectFromAI } from "@/lib/queries/mutations";
+import { RoadmapGenerationError, useCreateSkillProjectFromAI } from "@/lib/queries/mutations";
+import { formatResetTime, useAiGenerationUsage } from "@/lib/queries/ai-generations";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,7 @@ export function NewSkillForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const createSkillProject = useCreateSkillProjectFromAI();
+  const { data: usage } = useAiGenerationUsage();
 
   const {
     register,
@@ -37,7 +39,8 @@ export function NewSkillForm() {
   });
 
   const nameValue = watch("name");
-  const canSubmit = nameValue.trim().length > 0;
+  const limitReached = !!usage && usage.used >= usage.limit;
+  const canSubmit = nameValue.trim().length > 0 && !limitReached;
 
   if (createSkillProject.isPending) {
     return <GeneratingOverlay />;
@@ -48,13 +51,37 @@ export function NewSkillForm() {
     try {
       const { skillProjectId } = await createSkillProject.mutateAsync(values);
       router.push(`/dashboard/${skillProjectId}`);
-    } catch {
+    } catch (error) {
+      if (error instanceof RoadmapGenerationError && error.message === "rate_limited") {
+        setServerError(
+          error.retryAt
+            ? `You've used both roadmap generations for today. Next one available ${formatResetTime(error.retryAt)}.`
+            : "You've used both roadmap generations for today. Try again tomorrow."
+        );
+        return;
+      }
       setServerError("Couldn't generate a roadmap right now. Try again in a moment.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+      {usage && (
+        <div
+          className={cn(
+            "rounded-[7px] border px-3 py-2 text-[11px]",
+            limitReached
+              ? "border-destructive/30 bg-destructive/5 text-destructive"
+              : "border-wp-card-border bg-wp-card text-wp-ink-secondary"
+          )}
+        >
+          {limitReached
+            ? `Daily limit reached (${usage.used}/${usage.limit}). ${
+                usage.resetAt ? `Next one available ${formatResetTime(usage.resetAt)}.` : ""
+              }`
+            : `${usage.used}/${usage.limit} AI roadmaps generated today`}
+        </div>
+      )}
       <div>
         <Label htmlFor="name" className="mb-[5px] block text-[11px] font-semibold text-[#3F3F46]">
           Skill name

@@ -123,6 +123,16 @@ export function useDeleteSkillProject() {
   });
 }
 
+export class RoadmapGenerationError extends Error {
+  retryAt: string | null;
+
+  constructor(code: string, retryAt: string | null = null) {
+    super(code);
+    this.name = "RoadmapGenerationError";
+    this.retryAt = retryAt;
+  }
+}
+
 export function useCreateSkillProjectFromAI() {
   const queryClient = useQueryClient();
 
@@ -136,13 +146,19 @@ export function useCreateSkillProjectFromAI() {
 
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.error ?? "generation_failed");
+        throw new RoadmapGenerationError(body.error ?? "generation_failed", body.retryAt ?? null);
       }
 
       return (await response.json()) as { skillProjectId: string };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.skillProjects.all() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.aiGenerations.usage() });
+    },
+    onError: (error) => {
+      if (error instanceof RoadmapGenerationError && error.message === "rate_limited") {
+        queryClient.invalidateQueries({ queryKey: queryKeys.aiGenerations.usage() });
+      }
     },
   });
 }

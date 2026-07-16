@@ -9,16 +9,20 @@ import { signUpSchema, type SignUpInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SignUpForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignUpInput>({ resolver: zodResolver(signUpSchema) });
+
+  const pending = isSubmitting || isNavigating;
 
   const onSubmit = async (values: SignUpInput) => {
     setServerError(null);
@@ -35,6 +39,8 @@ export function SignUpForm() {
       );
       return;
     }
+
+    setIsNavigating(true);
 
     const signinResponse = await fetch("/api/auth/signin", {
       method: "POST",
@@ -85,8 +91,9 @@ export function SignUpForm() {
         )}
       </div>
       {serverError && <p className="text-xs text-destructive">{serverError}</p>}
-      <Button type="submit" disabled={isSubmitting} className="mt-1">
-        {isSubmitting ? "Creating account…" : "Create account"}
+      <Button type="submit" disabled={pending} className="mt-1">
+        {pending && <Spinner />}
+        {pending ? "Creating account…" : "Create account"}
       </Button>
     </form>
   );

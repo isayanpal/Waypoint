@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { signInSchema, type SignInInput } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -14,11 +15,14 @@ export function SignInForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
+
+  const pending = isSubmitting || isNavigating;
 
   const onSubmit = async (values: SignInInput) => {
     setServerError(null);
@@ -33,6 +37,7 @@ export function SignInForm() {
       return;
     }
 
+    setIsNavigating(true);
     router.push("/dashboard");
     router.refresh();
   };
@@ -81,8 +86,9 @@ export function SignInForm() {
         )}
       </div>
       {serverError && <p className="text-xs text-destructive">{serverError}</p>}
-      <Button type="submit" disabled={isSubmitting} className="mt-1">
-        {isSubmitting ? "Signing in…" : "Sign in"}
+      <Button type="submit" disabled={pending} className="mt-1">
+        {pending && <Spinner />}
+        {pending ? "Signing in…" : "Sign in"}
       </Button>
     </form>
   );

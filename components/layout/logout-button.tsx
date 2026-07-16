@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 export function LogoutButton({ showLabel }: { showLabel: boolean }) {
   const router = useRouter();
@@ -26,7 +27,11 @@ export function LogoutButton({ showLabel }: { showLabel: boolean }) {
         !showLabel && "justify-center"
       )}
     >
-      <LogOut className="h-3.5 w-3.5 shrink-0" />
+      {loading ? (
+        <Spinner className="h-3.5 w-3.5 shrink-0" />
+      ) : (
+        <LogOut className="h-3.5 w-3.5 shrink-0" />
+      )}
       {showLabel && (loading ? "Logging out..." : "Log out")}
     </button>
   );
