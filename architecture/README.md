@@ -1,41 +1,45 @@
-# Waypoint — Architecture Plan
+# Waypoint — Architecture Overview
 
 Personal learning-roadmap platform.
-Multi-user web app: users sign up, describe a skill goal, get an AI-generated phase-by-phase roadmap, and track progress across multiple "skill projects."
+Multi-user web app: users sign up with a username, describe a skill goal, get an AI-generated phase-by-phase roadmap, and track progress across multiple "skill projects."
 
-Source design spec: `design_handoff_waypoint/README.md` + `waypoint-design.dc.html` (clickable HTML prototype).
-This plan translates that prototype into a production Next.js + Supabase app. It does not contain implementation code — see the two detail docs below.
+This app grew from an initial prototype/design spec into a production Next.js + Supabase app. See the two detail docs below for schema/route/component specifics.
 
-## Stack decisions (confirmed)
+## Stack (as built)
 
 | Concern | Choice |
 |---|---|
 | Language | TypeScript |
 | Database / Auth | Supabase (Postgres + Supabase Auth + RLS) |
-| Framework | Next.js (App Router) |
-| UI components | shadcn/ui + Tailwind |
-| Client state | Zustand (UI-only state) |
+| Framework | Next.js 16 (App Router), React 19 |
+| UI components | shadcn/ui v4 (@base-ui/react) + Tailwind CSS v4 |
+| Client state | Zustand (`persist` middleware, UI-only state) |
 | Server state / data fetching | TanStack Query |
-| AI roadmap generation | Google Gemini API |
+| AI roadmap generation | Google Gemini API (`@google/genai`, `gemini-flash-lite-latest`, structured JSON output) |
 | Deployment | Vercel |
 | Rate limiting | DB-based (Postgres log table + count check), 2 AI generations / rolling 24h / user, no external service |
-| Auth method | Email or username + password. No password-reset flow in v1. |
+| Auth method | Username + password only. No user-facing email, no password-reset flow. |
+| Project cap | 4 skill projects per user, enforced server-side in the generate route |
 | Tenancy | Standard multi-user, row-level isolation per `auth.uid()` |
 
 ## Docs in this folder
 
-- [`backend-architecture.md`](./backend-architecture.md) — Supabase schema, RLS, auth flow (username-or-email sign-in), Gemini integration, DB functions, rate limiting, API route inventory.
+- [`backend-architecture.md`](./backend-architecture.md) — Supabase schema, RLS, auth flow, Gemini integration, DB functions, rate limiting, API route inventory.
 - [`frontend-architecture.md`](./frontend-architecture.md) — Next.js route structure, component tree, Zustand vs TanStack Query boundary, theming, responsive/sidebar behavior.
 
-## Key departures from the prototype (and why)
+## Key decisions and departures from the original plan
 
-1. **Real routing instead of a `page` state string.** The prototype is a single-page app with a JS variable for "current page." Next.js gets real routes (`/dashboard/[projectId]`, `/roadmap/[projectId]`, etc.) — proper browser history, shareable URLs, no behavior lost.
-2. **Server-owned data instead of localStorage.** Every entity the prototype kept in `localStorage` (skill projects, phases, topics, portfolio projects, theme, streak) moves to Postgres, scoped per user via RLS. TanStack Query replaces the prototype's in-memory state object as the source of truth on the client.
-3. **AI generation is a real backend call**, not a 1.4s fake spinner — a rate-limited Next.js route handler calls Gemini, validates the structured response, and writes the roadmap atomically via a Postgres function.
-4. **Username sign-in requires a resolve step.** Supabase Auth is email-keyed. Signing in "by username" needs a server-side lookup (username → email) before calling `signInWithPassword`. Detailed in the backend doc.
+1. **Real routing, no client-side `page` state.** Routes: `/dashboard/[projectId]`, `/roadmap/[projectId]`, `/projects/[projectId]`, `/new-skill` — proper browser history, shareable URLs.
+2. **Server-owned data, not localStorage.** All skill-project data (phases, topics, portfolio projects) lives in Postgres, scoped per user via RLS. TanStack Query is the client-side source of truth for server data.
+3. **AI generation is a real backend call.** A rate-limited Next.js route handler calls Gemini with structured/JSON-mode output, validates the response with Zod, and writes the roadmap atomically via a Postgres function.
+4. **Username-only auth, no email collected from users.** Supabase Auth is email-keyed internally, so signup synthesizes a placeholder address (`{username}@users.waypoint.internal`) that the user never sees. Sign-in resolves username → internal email via a service-role lookup, then calls `signInWithPassword`. This replaced an earlier "email or username" plan — see the backend doc §5.
+5. **Auth gating lives in a server component, not middleware.** `app/(app)/layout.tsx` calls `supabase.auth.getUser()` and redirects unauthenticated users; there is no `middleware.ts` in this repo.
+6. **A 4-project-per-user cap** is enforced in `/api/roadmap/generate` alongside the generation rate limit — not part of the original plan, added to bound per-user storage/AI usage.
 
-## Open items to confirm before/while building
+## Known gaps between schema and wired UI
 
-- Exact Gemini model + whether to use its structured/JSON-mode output (recommended) vs. free-text parsing.
-- Whether skill/topic/portfolio-project edits are ever needed post-generation (manual edit UI), or v1 is generate-once + checklist/status toggling only, per the prototype's scope. Current plan assumes the latter.
-- Email verification requirement on signup (Supabase supports it out of the box; adds a "check your email" step to the UX). Not yet decided — flagged in backend doc.
+These exist in the database but aren't currently read by any component — flagged here so they aren't mistaken for bugs:
+
+- `activity_log` is written to by `toggle_topic_done` (one row/day per skill project, incrementing `weight`) but nothing renders a heatmap or streak from it. `skill_projects.streak` was removed entirely (migration `0012_drop_skill_projects_streak.sql`).
+- `user_settings` (`theme`, `sidebar_collapsed`) is created by the signup trigger but never read or written by the client — theme and sidebar state live entirely in the Zustand store, persisted to `localStorage`, not synced to Supabase.
+- `lib/types/database.ts` is an un-generated placeholder (`export type Database = any`) — run `supabase gen types typescript` to get real types.

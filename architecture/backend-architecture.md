@@ -4,33 +4,34 @@
 
 Backend responsibility splits three ways:
 
-1. **Direct-to-Supabase reads/mutations from the client**, protected entirely by Row-Level Security (RLS). Used for everything that's a simple per-user CRUD op: reading a skill project's phases/topics, cycling a portfolio project's status, deleting a skill project.
-2. **Postgres functions (RPC)**, called via the Supabase client, for anything that must be atomic or encodes business logic that shouldn't live duplicated in the frontend (toggling a topic and recomputing phase/streak state; writing an entire AI-generated roadmap in one transaction).
-3. **Next.js Route Handlers**, for anything that needs a secret the browser must never see (Gemini API key, Supabase service-role key) or needs centralized rate limiting: auth signup/signin (username resolution), AI roadmap generation.
+1. **Direct-to-Supabase reads/mutations from the client**, protected entirely by Row-Level Security (RLS). Used for simple per-user CRUD: reading a skill project's phases/topics.
+2. **Postgres functions (RPC)**, called via the Supabase client, for anything that must be atomic or encodes business logic that shouldn't live duplicated in the frontend (toggling a topic and recomputing phase state; writing an entire AI-generated roadmap in one transaction).
+3. **Next.js Route Handlers**, for anything that needs a secret the browser must never see (Gemini API key, Supabase service-role key) or needs centralized rate limiting: auth signup/signin/signout (username resolution), AI roadmap generation.
 
-This keeps the backend "thin" — no separate API server, no ORM layer — while still getting real transactional guarantees and secret isolation.
+No separate API server, no ORM layer, no `middleware.ts` — session auth-gating happens in `app/(app)/layout.tsx` as a server component (see frontend doc §1).
 
 ## 2. Database schema (Supabase Postgres)
 
-All tables use `uuid` primary keys (`gen_random_uuid()`), denormalize `user_id` on every row (simplifies RLS to a single equality check, avoids join-based policies), and use `timestamptz` for all timestamps.
+All tables use `uuid` primary keys (`gen_random_uuid()`), denormalize `user_id` on every row (simplifies RLS to a single equality check), and use `timestamptz` for timestamps. Reflects the schema after all migrations through `0012`.
 
 ```
 profiles
   id            uuid PK, references auth.users(id) on delete cascade
-  username      text unique, not null, citext or lower() indexed for case-insensitive lookup
-  email         text not null            -- mirrored from auth.users for lookup convenience
+  username      text not null unique          -- unique index on lower(username) for case-insensitive lookup
+  email         text not null                  -- mirrors auth.users.email; see §5, this is a synthetic
+                                                   internal address, never shown to the user
   created_at    timestamptz default now()
 
 skill_projects
-  id            uuid PK
-  user_id       uuid not null references auth.users(id) on delete cascade
-  name          text not null
-  goal          text                      -- "Goal & context" from onboarding form
-  level         text                      -- Beginner | Intermediate | Advanced
-  timeline_months integer                 -- 3 | 6 | 12
-  streak        integer default 0         -- denormalized cache, recomputed from activity_log
-  created_at    timestamptz default now()
-  updated_at    timestamptz default now()
+  id              uuid PK
+  user_id         uuid not null references auth.users(id) on delete cascade
+  name            text not null
+  goal            text                      -- "Goal & context" from onboarding form
+  level           text                      -- Beginner | Intermediate | Advanced
+  timeline_months integer                   -- 3 | 6 | 12
+  created_at      timestamptz default now()
+  updated_at      timestamptz default now()
+  -- streak column removed in migration 0012_drop_skill_projects_streak.sql
 
 phases
   id                uuid PK
@@ -71,15 +72,15 @@ portfolio_project_phases          -- many-to-many: "Phase N — ShortName" chips
   phase_id              uuid not null references phases(id) on delete cascade
   primary key (portfolio_project_id, phase_id)
 
-activity_log                      -- backs the contribution heatmap + streak calc
+activity_log                      -- written by toggle_topic_done; not currently read by any UI (see architecture/README.md)
   id                uuid PK
   user_id           uuid not null references auth.users(id) on delete cascade
   skill_project_id  uuid not null references skill_projects(id) on delete cascade
   occurred_on       date not null
-  weight            integer not null default 1   -- topics completed that day, drives heatmap shading level
+  weight            integer not null default 1   -- topics completed that day
   unique (skill_project_id, occurred_on)
 
-user_settings
+user_settings                     -- created by the signup trigger; not currently read/written by the client
   user_id            uuid PK references auth.users(id) on delete cascade
   theme              text not null default 'indigo_ink' check (theme in ('indigo_ink','graphite_gold','emerald_slate'))
   sidebar_collapsed  boolean not null default false
@@ -91,8 +92,7 @@ ai_generations                    -- backs rate limiting, see §7
 ```
 
 Notes:
-- `sidebarCollapsed` / `mobileNavOpen` from the prototype's state list — only `sidebar_collapsed` is persisted server-side (cross-device preference worth keeping). `mobileNavOpen` is transient UI state, stays client-only (Zustand, not persisted).
-- Heatmap cell shading levels (5 buckets) are a frontend computation over `activity_log.weight`, not stored as a separate column — keeps the AI/mutation layer from needing to know about presentation buckets.
+- `activity_log` and `user_settings` exist and are populated (the former by `toggle_topic_done`, the latter by the signup trigger) but neither is currently read back by the frontend. Theme and sidebar-collapsed state live in the client-only Zustand store (`localStorage`), not Supabase. Treat these two tables as write-only until a heatmap/cross-device-settings feature is built against them.
 - `phases.status = 'current'` is maintained by the topic-toggle function (§4), not set directly by the client.
 
 ## 3. Row-Level Security
@@ -103,10 +103,10 @@ RLS enabled on every table above. Uniform policy shape since `user_id` is denorm
 alter table skill_projects enable row level security;
 create policy "owner full access" on skill_projects
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
--- repeat per table (phases, topics, portfolio_projects, activity_log, user_settings)
+-- repeat per table (phases, topics, portfolio_projects, activity_log, user_settings, ai_generations)
 ```
 
-`portfolio_project_phases` has no `user_id` column (pure join table) — policy instead checks ownership via a subquery against `portfolio_projects`:
+`portfolio_project_phases` has no `user_id` column (pure join table) — policy checks ownership via a subquery against `portfolio_projects`:
 
 ```sql
 create policy "owner full access" on portfolio_project_phases
@@ -116,102 +116,109 @@ create policy "owner full access" on portfolio_project_phases
   );
 ```
 
-`profiles`: `select` policy scoped to `auth.uid() = id` for normal clients. Username-lookup during sign-in (§5) goes through the **service-role** client in a route handler, which bypasses RLS entirely — no public read policy on `profiles` is needed or created. This avoids leaking the username↔email mapping to anonymous clients.
+`profiles`: only a `select` policy scoped to `auth.uid() = id`. No insert/update/delete policy — the only writer is the `handle_new_user()` trigger, which is `security definer` and bypasses RLS. Username-lookup during sign-up/sign-in goes through the **service-role** client in a route handler, also bypassing RLS — no public read policy on `profiles` exists, so the username↔email mapping is never exposed to anonymous or other users' clients.
 
 ## 4. Postgres functions (RPC)
 
-Business logic that must be atomic lives in `SECURITY INVOKER` functions (run with the calling user's privileges, so RLS still applies) called via `supabase.rpc(...)`.
+`SECURITY INVOKER` unless noted (runs with the calling user's privileges, so RLS still applies), called via `supabase.rpc(...)`.
 
-### `toggle_topic_done(p_topic_id uuid)`
-Single entry point for the prototype's "click checkbox → flips done → recomputes phase status → recomputes stats" chain.
+### `handle_new_user()` — trigger, `security definer`
+Fires `after insert` on `auth.users`. Reads `username` from `raw_user_meta_data` and `email` from the new row, inserts the corresponding `profiles` row and a default `user_settings` row. Keeps profile creation atomic with user creation.
+
+### `toggle_topic_done(p_topic_id uuid) returns setof phases`
+Single entry point for "click checkbox → flip done → recompute phase status → log activity."
 1. Flip `topics.done` for the given row (RLS ensures caller owns it).
 2. Recompute the parent phase's status:
    - `complete` if all sibling topics are now `done`.
-   - `current` if it's the first non-complete phase in the skill project (predecessor complete or is phase 1).
+   - `current` if it's the first non-complete phase in the skill project (`order_index = 0`, or the previous phase is `complete`).
    - `not_started` otherwise.
-3. If the phase just became `complete`, and a next phase exists, ensure that next phase is marked `current` (unlocking it) unless it's already complete.
-4. Upsert today's row in `activity_log` for this `skill_project_id`, incrementing `weight`.
-5. Return the updated phase + topic (or the full skill project's phases, to keep the client simple — one round trip, no manual client-side recompute needed).
+3. If the phase just became `complete` and a next phase exists, mark it `current` (unlocking it) unless already complete.
+4. Upsert today's row in `activity_log` for this `skill_project_id` (`on conflict (skill_project_id, occurred_on) do update set weight = weight + 1`).
+5. Return all phases for the skill project, ordered by `order_index` — one round trip, client doesn't need to manually recompute.
 
-### `cycle_portfolio_project_status(p_project_id uuid)`
-Rotates `not_started → in_progress → complete → not_started`. Trivial, but centralized so the cycle order is defined once, not duplicated in a frontend switch statement.
+### `cycle_portfolio_project_status(p_project_id uuid) returns portfolio_projects`
+Rotates `not_started → in_progress → complete → not_started`. Returns the updated row.
 
-### `check_and_log_ai_generation(p_user_id uuid) returns boolean`
-Rate-limit gate, replaces the earlier Redis-based design (see §7). `SECURITY DEFINER` function, single SQL statement:
-1. Count rows in `ai_generations` for `p_user_id` where `created_at > now() - interval '24 hours'`.
+### `delete_skill_project(p_skill_project_id uuid) returns void`
+Deletes the skill project; `on delete cascade` handles children.
+
+### `create_skill_project_from_ai(p_payload jsonb) returns uuid`
+Called only from `/api/roadmap/generate`, never directly from the browser. Takes the validated Gemini output and inserts `skill_projects` + 5 `phases` (first `current`, rest `not_started`) + their `topics` + `portfolio_projects` + `portfolio_project_phases` in one transaction, returning the new `skill_project_id`. Runs with the caller's own session (not service-role) — RLS applies to every insert. Atomicity matters here: a partial roadmap (phases with no topics) is worse than a failed generation.
+
+### `check_and_log_ai_generation(p_user_id uuid) returns boolean` — `security definer`
+Rate-limit gate (§7). Single statement:
+1. Count `ai_generations` rows for `p_user_id` where `created_at > now() - interval '24 hours'`.
 2. If count `>= 2`, return `false` (caller rejects with 429), no insert.
-3. Otherwise insert a new `ai_generations` row for this user, return `true`.
-Doing the count-then-insert as one statement (CTE, not two round trips) keeps the race window for concurrent double-submits negligible — acceptable at this app's scale; a full `SELECT ... FOR UPDATE` row lock is unnecessary overhead here.
-
-### `delete_skill_project(p_skill_project_id uuid)`
-Deletes the skill project (cascades handle children). Wrapped as a function only so the frontend has one call site consistent with the others; a plain `.delete()` via the Supabase client would work equally well since RLS + `on delete cascade` already make this safe — either is fine, function form recommended for consistency with the mutation hooks in the frontend doc.
-
-### `create_skill_project_from_ai(p_payload jsonb)`
-Used only by the AI-generation route handler (§6), not called directly from the browser. Takes the validated Gemini output (already shaped by the route handler's Zod schema) and inserts `skill_projects` + `phases` + `topics` + `portfolio_projects` + `portfolio_project_phases` in one transaction, returning the new `skill_project_id`. Atomicity here matters: a partial roadmap (phases with no topics because the request died halfway) is worse than an outright failed generation.
+3. Otherwise insert a new `ai_generations` row, return `true`.
+Count-and-insert as one statement keeps the race window for concurrent double-submits negligible.
 
 ## 5. Authentication
 
-Supabase Auth, email/password grant. Requirement: sign in with **either username or email**.
+Supabase Auth, email/password grant under the hood — but **the app collects only a username and password from the user**. No email field exists anywhere in the signup UI or its Zod schema.
 
-### Sign-up (`POST /api/auth/signup`, Route Handler, Node runtime)
-1. Validate input (Zod): `username` (3-24 chars, alphanumeric + underscore), `email`, `password` (min length per Supabase default policy).
+### Sign-up (`POST /api/auth/signup`, Route Handler)
+1. Validate input (Zod, `lib/validations/auth.ts`): `username` (3-24 chars, alphanumeric + underscore), `password` (min 6 chars).
 2. Pre-check username availability: query `profiles` for `lower(username) = lower(input)` using the **service-role** client (bypasses RLS; anon clients have no read access to `profiles`). If taken, return 409 before touching auth.
-3. Call `supabase.auth.signUp({ email, password, options: { data: { username } } })` using the anon/server client — `username` lands in `raw_user_meta_data`.
-4. A Postgres trigger on `auth.users` (`after insert`) reads `NEW.raw_user_meta_data->>'username'` and inserts the `profiles` row + a default `user_settings` row. Keeps profile creation atomic with user creation regardless of which client path creates the user.
-5. Race handling: if the trigger's unique-constraint on `username` fails (two concurrent signups for the same name), the trigger raises, `auth.signUp` fails, and the route handler calls `supabase.auth.admin.deleteUser(id)` (service-role) to avoid an orphaned auth user with no profile, then returns 409.
-6. Email verification: **decision needed** (flagged in the overview doc) — if enabled, Supabase sends the confirmation email automatically and the response tells the frontend to show a "check your email" state instead of signing in immediately.
+3. Synthesize a placeholder email: `` `${username.toLowerCase()}@users.waypoint.internal` ``. This satisfies Supabase Auth's email requirement without ever asking the user for one.
+4. Call `supabase.auth.signUp({ email, password, options: { data: { username } } })`. `username` lands in `raw_user_meta_data`.
+5. The `handle_new_user()` trigger (§4) reads `raw_user_meta_data->>'username'` and inserts the `profiles` + `user_settings` rows.
+6. Race handling: if the trigger's unique constraint on `username` fails (two concurrent signups for the same name), `auth.signUp` fails and the route handler calls `supabase.auth.admin.deleteUser(id)` (service-role) to avoid an orphaned auth user with no profile, then returns 409.
+7. No email verification flow — resolved by removing email collection entirely rather than adding verification.
 
 ### Sign-in (`POST /api/auth/signin`, Route Handler)
-Supabase Auth only knows email. Resolving "username or email" requires a server hop:
 1. Validate input: `identifier` (string), `password`.
-2. If `identifier` contains `@`, treat as email directly.
-3. Otherwise, look up `profiles` by `lower(username)` via service-role client to get the associated `email`. Not found → return a generic "invalid credentials" (don't leak whether the username exists).
-4. Call `supabase.auth.signInWithPassword({ email, password })` and forward the resulting session cookies to the browser (via `@supabase/ssr` cookie handling in the route handler).
+2. If `identifier` contains `@`, treat as an email directly (dead code from the UI's perspective, since signup never collects a real email — kept for API robustness).
+3. Otherwise, look up `profiles` by `lower(username)` via the service-role client to get the associated (synthetic) `email`. Not found → generic "invalid credentials" (don't leak whether the username exists).
+4. Call `supabase.auth.signInWithPassword({ email, password })`, forward the resulting session cookies to the browser via `@supabase/ssr`.
 
-Client-side, both forms post to these route handlers rather than calling `supabase.auth` directly — necessary for the username-resolution step and keeps the service-role key server-only.
+### Sign-out (`POST /api/auth/signout`, Route Handler)
+Calls `supabase.auth.signOut()` with the server client, clearing session cookies.
+
+Client-side, all three forms post to these route handlers rather than calling `supabase.auth` directly — necessary for the username-resolution step and keeps the service-role key server-only.
 
 ### Session handling
-`@supabase/ssr` for cookie-based sessions across server components, route handlers, and middleware. `middleware.ts` refreshes the session on every request and redirects unauthenticated users away from `(app)` routes to `/sign-in`.
+`@supabase/ssr` for cookie-based sessions across server components and route handlers. `app/(app)/layout.tsx` is a server component that calls `supabase.auth.getUser()` on every request to that route group and `redirect("/sign-in")` if there's no session. There is no `middleware.ts` in this repo.
 
 ## 6. AI roadmap generation
 
-`POST /api/roadmap/generate` — Route Handler, Node runtime (not Edge — needs the Gemini SDK and a longer execution window than Edge's default).
+`POST /api/roadmap/generate` — Route Handler, Node runtime.
 
-1. **Auth check**: resolve user from the request's Supabase session (server client). 401 if absent.
-2. **Rate limit check** (see §7): call `check_and_log_ai_generation(user_id)`. `false` → return 429 immediately, no Gemini call made (cheap check happens before the expensive one).
-3. **Input validation** (Zod): `name`, `goal`, `level` (enum), `timelineMonths` (enum 3/6/12).
-4. **Prompt construction**: build a structured prompt asking Gemini for a 5-phase roadmap (Fundamentals → Core practices → Intermediate techniques → Advanced topics → Portfolio capstone, per the onboarding spec) plus 2 portfolio projects, tailored to `goal`/`level`/`timelineMonths`.
-5. **Call Gemini** using its structured-output mode (`responseMimeType: "application/json"` + a `responseSchema`) so the model is constrained to a JSON shape matching the DB — avoids brittle free-text parsing.
-6. **Validate the response** against a Zod schema mirroring the DB shape (phase names + ordered topics; project name/timeline/difficulty/description/hook/proves/stack/linked-phase-indices). If validation fails, retry once with a stricter reminder, then fail with a 502 and a user-facing "generation failed, try again" message — never write partial/malformed data.
-7. **Persist**: call `create_skill_project_from_ai` (§4) with the validated payload.
-8. **Respond** with the new `skill_project_id`; frontend navigates to its dashboard.
-
-The prototype's "~1.4s fake spinner" becomes a real loading state sized to actual Gemini latency (likely 3-8s for this payload size) — frontend should show the same "Generating your roadmap…" copy, no fixed timer.
+1. **Auth check**: resolve user from the request's Supabase session (server client). 401 (`unauthorized`) if absent.
+2. **Input validation** (Zod): `name`, `goal`, `level` (enum), `timelineMonths` (enum 3/6/12). 400 (`invalid_input`) on failure.
+3. **Project cap check**: count the user's `skill_projects`; `>= 4` → 403 (`project_limit_reached`). 500 (`project_count_check_failed`) on query error.
+4. **Rate limit check** (§7): call `check_and_log_ai_generation(user_id)`. `false` → 429 (`rate_limited`) with a computed `retryAt` (oldest of the 2 recent `ai_generations` rows + 24h), no Gemini call made. 500 (`rate_limit_check_failed`) on query error.
+5. **Prompt construction** (`lib/gemini/prompts.ts`): fixed 5-phase progression (Fundamentals → Core practices → Intermediate techniques → Advanced topics → Portfolio capstone), 3-8 topics per phase scaled to `timelineMonths`, exactly 2 portfolio projects, tailored to `goal`/`level`.
+6. **Call Gemini** (`gemini-flash-lite-latest`, `lib/gemini/client.ts`) using structured output (`responseMimeType: "application/json"` + a `responseSchema` built from `@google/genai`'s `Type.*` enums) — avoids free-text parsing. Wrapped in `generateContentWithRetry`: up to 2 retries with exponential backoff (`500ms * 2^attempt`), retrying only on transient 503/429 errors from Gemini. Exhausted retries → 503 (`generation_unavailable`).
+7. **Validate the response** against `roadmapPayloadSchema` (Zod, `lib/gemini/schema.ts`) mirroring the DB shape — exactly 5 phases, exactly 2 portfolio projects, ordered topics, project name/timeline/difficulty/description/hook/proves/stack/linked-phase-indices. On mismatch, retry once with an amended prompt telling Gemini it got the shape wrong; still invalid → 502 (`generation_failed`). Never writes partial/malformed data.
+8. **Persist**: call `create_skill_project_from_ai` (§4) with the validated payload. DB failure → 502 (`generation_failed`).
+9. **Respond** `201` with the new `skillProjectId`; frontend navigates to its dashboard.
 
 ## 7. Rate limiting
 
-Scope, per your call: **AI generation endpoint only**. Auth endpoints and general API routes are not rate-limited in v1 (revisit if abuse shows up).
+Scope: **AI generation endpoint only**. Auth endpoints and general API routes are not rate-limited.
 
-- **Mechanism**: no external service. Enforced entirely in Postgres via `check_and_log_ai_generation` (§4) — an `ai_generations` log table plus a count check, called from the route handler before the Gemini request goes out. No Redis, no extra env vars, no extra infra to provision — the DB is already the source of truth for everything else, so it's the source of truth for this too.
-- **Key**: `user_id` — per-user, not per-IP (a shared IP shouldn't throttle unrelated users; an authenticated endpoint always has a user_id).
-- **Limit**: **2 generations per rolling 24h window per user**, hard cap — not 2-per-calendar-day (a calendar-day cap resets at UTC midnight regardless of when the user's window actually started, which is easier to game and inconsistent with "2, that's it" per your framing). Rolling window means exactly 2 successful generations in any 24h lookback, no more, ever, regardless of timing.
-- **Response on limit hit**: HTTP 429, JSON body `{ error: "rate_limited", retryAt: <iso timestamp of oldest-of-the-2 generation + 24h> }` — the route handler computes `retryAt` from the `ai_generations` rows it already queried. Frontend shows this as a toast/inline error on the onboarding form, not a silent failure.
-- **This governs successful generations only.** A generation that fails validation (§6 step 6, malformed Gemini output) still consumes one of the 2 slots since the log row is written before the Gemini call — deliberate: it's a rate limit on generation *attempts*, not on Gemini's reliability, and prevents a user from retrying a broken prompt indefinitely. If this turns out too strict in practice, move the log-insert to after successful persistence instead — noted as a tuning knob, not a v1 blocker.
-- **Trade-off accepted**: this cap is per authenticated user only. It does nothing against someone scripting many signups to get many free generation batches — out of scope for a personal-use-scale app; revisit (e.g. add email verification + a per-IP secondary check) only if that's observed in practice.
+- **Mechanism**: no external service. Enforced in Postgres via `check_and_log_ai_generation` (§4) — an `ai_generations` log table plus a count check, called from the route handler before the Gemini request goes out.
+- **Key**: `user_id` — per-user, not per-IP.
+- **Limit**: **2 generations per rolling 24h window per user**, hard cap — not per-calendar-day. `DAILY_GENERATION_LIMIT = 2` is also duplicated client-side in `lib/queries/ai-generations.ts` (`useAiGenerationUsage()`) to drive a remaining-quota UI without a round trip.
+- **Response on limit hit**: HTTP 429, JSON body `{ error: "rate_limited", retryAt: <iso timestamp> }` computed from the oldest of the 2 recent `ai_generations` rows + 24h.
+- **This governs generation attempts, not successes.** The log row is written before the Gemini call, so a generation that later fails schema validation still consumes one of the 2 slots.
+- **Separate cap**: a **4-skill-project limit per user** is enforced in the same route handler (`project_limit_reached`, 403) before the rate-limit check runs. This bounds per-user storage/AI usage independent of the 24h window.
+- **Trade-off accepted**: caps are per authenticated user only; no per-IP secondary check exists. Out of scope at this app's scale.
 
 ## 8. API route inventory
 
 | Route | Method | Purpose | Auth | Rate limited |
 |---|---|---|---|---|
-| `/api/auth/signup` | POST | Create account, resolve username uniqueness | Public | No |
+| `/api/auth/signup` | POST | Create account (username + password), resolve username uniqueness | Public | No |
 | `/api/auth/signin` | POST | Resolve username→email, sign in | Public | No |
-| `/api/roadmap/generate` | POST | Gemini call + atomic roadmap write | Required | Yes |
+| `/api/auth/signout` | POST | Clear session | Required | No |
+| `/api/roadmap/generate` | POST | Gemini call + atomic roadmap write | Required | Yes (2/24h + 4-project cap) |
 
-Everything else (toggle topic, cycle project status, delete skill project, list/read skill projects, update theme/sidebar pref) goes directly through the Supabase JS client from the browser — either a plain table query (RLS-protected) or an RPC call (§4). No custom route handler needed; this is intentional, not an oversight — it avoids a pile of pass-through API routes that add latency and no real logic.
+Everything else (toggle topic, cycle project status, delete skill project, list/read skill projects) goes directly through the Supabase JS client from the browser — either a plain table query (RLS-protected) or an RPC call (§4). No custom route handler needed.
 
 ## 9. Folder structure
 
-No separate backend service — it lives inside the Next.js repo as route handlers + a Supabase project. Layout:
+No separate backend service — it lives inside the Next.js repo as route handlers + a Supabase project.
 
 ```
 supabase/
@@ -221,56 +228,52 @@ supabase/
     0003_portfolio_projects.sql         -- portfolio_projects, portfolio_project_phases
     0004_activity_and_settings.sql      -- activity_log, user_settings
     0005_ai_generations.sql             -- rate-limit log table
-    0006_rls_policies.sql               -- all "owner full access" policies, one file, easy to audit
+    0006_rls_policies.sql               -- all "owner full access" policies, one file
     0007_functions_toggle_topic.sql     -- toggle_topic_done()
     0008_functions_portfolio_status.sql -- cycle_portfolio_project_status()
     0009_functions_delete_project.sql   -- delete_skill_project()
     0010_functions_ai_write.sql         -- create_skill_project_from_ai()
     0011_functions_rate_limit.sql       -- check_and_log_ai_generation()
-  config.toml                           -- Supabase CLI project config (local dev + link to remote)
-  seed.sql                              -- optional: the prototype's demo data (Backend Engineering +
-                                            Frontend Architecture examples) for local dev only
+    0012_drop_skill_projects_streak.sql -- drops skill_projects.streak (feature removed)
 
 app/
   api/
     auth/
       signup/route.ts                   -- §5 sign-up flow
       signin/route.ts                   -- §5 sign-in flow (username-or-email resolve)
+      signout/route.ts                  -- §5 sign-out
     roadmap/
-      generate/route.ts                 -- §6 Gemini call + rate-limit gate + atomic write
+      generate/route.ts                 -- §6 Gemini call + caps + atomic write
 
 lib/
   supabase/
     client.ts                           -- browser client (anon key)
-    server.ts                           -- server client, cookie-bound (@supabase/ssr), used in
-                                            route handlers, server components, middleware
+    server.ts                           -- server client, cookie-bound (@supabase/ssr)
     admin.ts                            -- service-role client, server-only — username lookups,
                                             orphaned-auth-user cleanup on signup race
   gemini/
-    client.ts                           -- Gemini SDK instance, reads GEMINI_API_KEY
+    client.ts                           -- Gemini SDK instance (@google/genai), GEMINI_MODEL constant
     prompts.ts                          -- roadmap-generation prompt template
     schema.ts                           -- Gemini responseSchema (JSON mode) + matching Zod schema
-                                            used to validate the response before persisting
   domain/
-    phase-status.ts                     -- pure functions for phase status / progress recompute —
-                                            shared reference so the frontend's optimistic-update
-                                            logic (see frontend doc §7) mirrors the DB function's
-                                            rules instead of drifting from them
+    phase-status.ts                     -- pure client-side mirror of the toggle_topic_done recompute
+                                            rules (hand-kept in sync, never the source of truth)
+    dashboard-stats.ts                  -- pure computeDashboardStats() over a SkillProjectDetail
   validations/
-    auth.ts                             -- signup/signin Zod schemas, imported by both the route
-                                            handlers and the frontend forms
-    new-skill.ts                        -- onboarding form Zod schema, same dual use
+    auth.ts                             -- signup/signin Zod schemas (no email field)
+    new-skill.ts                        -- onboarding form Zod schema
+  server/
+    active-project.ts                   -- getActiveProjectId(), server-only
   types/
-    database.ts                         -- generated via `supabase gen types typescript`, the single
-                                            source of truth for row/table types across front + back
-
-middleware.ts                           -- session refresh + auth gate (uses lib/supabase/server.ts)
+    database.ts                         -- placeholder (`export type Database = any`) until
+                                            `supabase gen types` is run
+    domain.ts                           -- hand-written domain types (Topic, Phase, PortfolioProject, ...)
 ```
 
 Notes:
-- Migrations are numbered and one-concern-per-file — matches how `supabase db diff`/`supabase migration new` output naturally accumulates, and keeps `git blame` on schema changes meaningful.
-- `lib/domain/phase-status.ts` is the one deliberate piece of "business logic" duplicated between Postgres (source of truth) and TypeScript (optimistic-UI mirror) — everything else lives in exactly one place (either a DB function or a route handler), by design, to avoid two implementations drifting apart.
-- `lib/types/database.ts` being generated (not hand-written) means schema changes in `supabase/migrations` flow into type safety on both the route handlers and the TanStack Query hooks with one `supabase gen types` run — no manually-maintained interface duplicating the SQL.
+- Migrations are numbered and one-concern-per-file, including `0012` which removed the streak column after the feature was dropped.
+- `lib/domain/phase-status.ts` is the one deliberate piece of business logic duplicated between Postgres (source of truth) and TypeScript (optimistic-UI mirror).
+- `lib/types/database.ts` should be regenerated via `supabase gen types typescript` before relying on typed Supabase queries — it currently ships as `any`.
 
 ## 10. Environment variables
 
