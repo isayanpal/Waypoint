@@ -1,5 +1,9 @@
+"use client";
+
+import { motion } from "motion/react";
 import { MiniProgressBar } from "@/components/shared/mini-progress-bar";
 import { StatusPill, statusBarColor } from "@/components/shared/status-pill";
+import { fadeInUp } from "@/lib/motion/variants";
 import type { Phase } from "@/lib/types/domain";
 
 export function PhaseRow({ phase, numLabel }: { phase: Phase; numLabel: string }) {
@@ -8,7 +12,11 @@ export function PhaseRow({ phase, numLabel }: { phase: Phase; numLabel: string }
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="flex items-center gap-2 border-b border-[#F4F4F5] px-3 py-[9px] last:border-b-0">
+    <motion.div
+      layout
+      variants={fadeInUp}
+      className="flex items-center gap-2 border-b border-[#F4F4F5] px-3 py-[9px] last:border-b-0"
+    >
       <div className="w-4 shrink-0 font-mono text-[11.5px] text-wp-ink-tertiary">{numLabel}</div>
       <div className="min-w-0 flex-1 truncate text-[14px] font-medium">{phase.name}</div>
       <MiniProgressBar
@@ -19,7 +27,7 @@ export function PhaseRow({ phase, numLabel }: { phase: Phase; numLabel: string }
       <div className="w-7 shrink-0 text-right font-mono text-[11.5px] text-wp-ink-secondary">
         {done}/{total}
       </div>
-      <StatusPill status={phase.status} className="w-[64px]" />
-    </div>
+      <StatusPill status={phase.status} className="min-w-[64px]" />
+    </motion.div>
   );
 }

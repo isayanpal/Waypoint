@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import type { PhaseStatus } from "@/lib/domain/phase-status";
 import type { PortfolioProjectStatus } from "@/lib/types/domain";
@@ -22,21 +25,48 @@ export function StatusPill({
   className?: string;
 }) {
   const style = STATUS_STYLES[status];
-  const Comp = onClick ? "button" : "div";
+  const pillClassName = cn(
+    "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[11.5px] font-bold",
+    onClick && "cursor-pointer",
+    className
+  );
+  const label = (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.span
+        key={style.label}
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 4 }}
+        transition={{ duration: 0.15 }}
+        className="inline-block"
+      >
+        {style.label}
+      </motion.span>
+    </AnimatePresence>
+  );
+
+  if (onClick) {
+    return (
+      <motion.button
+        type="button"
+        onClick={onClick}
+        animate={{ background: style.bg, color: style.text }}
+        transition={{ duration: 0.18 }}
+        className={pillClassName}
+      >
+        {label}
+      </motion.button>
+    );
+  }
 
   return (
-    <Comp
-      type={onClick ? "button" : undefined}
-      onClick={onClick}
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[11.5px] font-bold",
-        onClick && "cursor-pointer",
-        className
-      )}
-      style={{ background: style.bg, color: style.text }}
+    <motion.div
+      animate={{ background: style.bg, color: style.text }}
+      transition={{ duration: 0.18 }}
+      className={pillClassName}
     >
-      {style.label}
-    </Comp>
+      {label}
+    </motion.div>
   );
 }
 

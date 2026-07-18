@@ -1,12 +1,23 @@
+"use client";
+
+import { motion } from "motion/react";
 import { StatusPill } from "@/components/shared/status-pill";
+import { fadeInUp, staggerContainer } from "@/lib/motion/variants";
 import type { PortfolioProject } from "@/lib/types/domain";
 
 export function PortfolioSummaryList({ projects }: { projects: PortfolioProject[] }) {
   return (
-    <div className="mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white"
+    >
       {projects.map((project) => (
-        <div
+        <motion.div
           key={project.id}
+          layout
+          variants={fadeInUp}
           className="flex items-center gap-2 border-b border-[#F4F4F5] px-3 py-[9px] last:border-b-0"
         >
           <div className="min-w-0 flex-1">
@@ -14,8 +25,8 @@ export function PortfolioSummaryList({ projects }: { projects: PortfolioProject[
             <div className="truncate text-[11.5px] text-wp-ink-tertiary">{project.timeline}</div>
           </div>
           <StatusPill status={project.status} />
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

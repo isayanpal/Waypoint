@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ViewTransition } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileDrawer } from "@/components/layout/mobile-drawer";
@@ -22,7 +23,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <MobileDrawer />
       <div className="min-w-0 flex-1 overflow-y-auto">
         <MobileTopBar />
-        {children}
+        <ViewTransition name="app-content" enter="auto" exit="auto" default="none">
+          {children}
+        </ViewTransition>
       </div>
     </div>
   );

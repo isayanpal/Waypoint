@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
 import { ProjectIndexNumber } from "@/components/projects/project-index-number";
 import { LinkedPhaseChips } from "@/components/projects/linked-phase-chips";
 import { StatusPill } from "@/components/shared/status-pill";
+import { fadeInUp, hoverLift } from "@/lib/motion/variants";
 import type { Phase, PortfolioProject } from "@/lib/types/domain";
 
 export function ProjectCard({
@@ -18,7 +22,13 @@ export function ProjectCard({
   onCycleStatus: () => void;
 }) {
   return (
-    <div className="rounded-[12px] border border-wp-card-border bg-white px-5 py-[18px]">
+    <motion.div
+      variants={fadeInUp}
+      initial="hidden"
+      animate="visible"
+      whileHover={hoverLift}
+      className="rounded-[12px] border border-wp-card-border bg-white px-5 py-[18px]"
+    >
       <div className="flex gap-[14px]">
         <ProjectIndexNumber index={index} />
         <div className="min-w-0 flex-1">
@@ -71,6 +81,6 @@ export function ProjectCard({
           </Link>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

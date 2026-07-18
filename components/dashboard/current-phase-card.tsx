@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 import { PhaseWatermarkNumber } from "@/components/shared/phase-watermark-number";
 import { FractionBadge } from "@/components/shared/fraction-badge";
 import { MiniProgressBar } from "@/components/shared/mini-progress-bar";
 import { TopicChecklist } from "@/components/shared/topic-checklist";
+import { fadeInUp, hoverLift } from "@/lib/motion/variants";
 import type { Phase } from "@/lib/types/domain";
 
 export function CurrentPhaseCard({
@@ -24,7 +26,13 @@ export function CurrentPhaseCard({
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="relative mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white px-[18px] py-4">
+    <motion.div
+      variants={fadeInUp}
+      initial="hidden"
+      animate="visible"
+      whileHover={hoverLift}
+      className="relative mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white px-[18px] py-4"
+    >
       <PhaseWatermarkNumber numLabel={numLabel} size={112} />
       <div className="relative z-10">
         <div className="mb-[2px] flex items-center justify-between gap-[10px]">
@@ -47,6 +55,6 @@ export function CurrentPhaseCard({
           onToggle={(topicId) => onToggleTopic(phase.id, topicId)}
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

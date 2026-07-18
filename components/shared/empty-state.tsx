@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
+import { fadeInUp } from "@/lib/motion/variants";
 
 export function EmptyState() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+    <motion.div
+      variants={fadeInUp}
+      initial="hidden"
+      animate="visible"
+      className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center"
+    >
       <div className="font-heading text-[22px] font-extrabold">No skill projects yet</div>
       <div className="max-w-[340px] text-[14.5px] text-wp-ink-secondary">
         Describe what you want to learn and get an AI-generated roadmap, portfolio projects, and a
@@ -14,6 +23,6 @@ export function EmptyState() {
       >
         Add your first skill
       </Link>
-    </div>
+    </motion.div>
   );
 }

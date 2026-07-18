@@ -1,10 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { motion } from "motion/react";
 import { useSkillProject } from "@/lib/queries/skill-projects";
 import { useCycleProjectStatus } from "@/lib/queries/mutations";
 import { ProjectCard } from "@/components/projects/project-card";
 import { Spinner } from "@/components/ui/spinner";
+import { staggerContainer } from "@/lib/motion/variants";
 
 export default function ProjectsPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -30,7 +32,12 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-3"
+      >
         {project.portfolioProjects.map((pp, i) => (
           <ProjectCard
             key={pp.id}
@@ -41,7 +48,7 @@ export default function ProjectsPage() {
             onCycleStatus={() => cycleStatus.mutate({ portfolioProjectId: pp.id })}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

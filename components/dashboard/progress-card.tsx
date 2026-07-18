@@ -1,4 +1,8 @@
+"use client";
+
+import { motion } from "motion/react";
 import { CircularProgress } from "@/components/shared/circular-progress";
+import { fadeInUp, hoverLift } from "@/lib/motion/variants";
 import type { Phase } from "@/lib/types/domain";
 
 export function ProgressCard({ currentPhase }: { currentPhase: Phase }) {
@@ -7,7 +11,13 @@ export function ProgressCard({ currentPhase }: { currentPhase: Phase }) {
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="mb-[18px] flex w-full items-center gap-[18px] rounded-[11px] border border-wp-card-border bg-white px-[18px] py-[14px]">
+    <motion.div
+      variants={fadeInUp}
+      initial="hidden"
+      animate="visible"
+      whileHover={hoverLift}
+      className="mb-[18px] flex w-full items-center gap-[18px] rounded-[11px] border border-wp-card-border bg-white px-[18px] py-[14px]"
+    >
       <CircularProgress pct={pct} size={64} strokeWidth={6} color="#8A6A2F">
         <span className="font-heading text-[15px] font-bold text-wp-ink-primary">{pct}%</span>
       </CircularProgress>
@@ -22,6 +32,6 @@ export function ProgressCard({ currentPhase }: { currentPhase: Phase }) {
           {done}/{total} topics complete
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

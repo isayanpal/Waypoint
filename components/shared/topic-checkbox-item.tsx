@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
+import { ConfettiBurst } from "@/lib/motion/confetti-burst";
 
 export function TopicCheckboxItem({
   label,
@@ -17,25 +20,46 @@ export function TopicCheckboxItem({
   className?: string;
 }) {
   const boxSize = size === "sm" ? "h-[13px] w-[13px]" : "h-[14px] w-[14px]";
+  const [burst, setBurst] = useState(0);
+
+  const handleClick = () => {
+    if (!done) setBurst((b) => b + 1);
+    onToggle();
+  };
 
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={handleClick}
       className={cn("flex min-w-0 items-center gap-2 py-[1px] text-left", className)}
     >
-      <span
+      <motion.span
+        animate={{ borderColor: done ? "var(--wp-accent)" : "#D4D4D8" }}
+        transition={{ duration: 0.15 }}
         className={cn(
-          "flex shrink-0 items-center justify-center rounded-[4px] border-[1.5px]",
+          "relative flex shrink-0 items-center justify-center overflow-visible rounded-[4px] border-[1.5px]",
           boxSize,
           done ? "border-wp-accent bg-wp-accent" : "border-[#D4D4D8] bg-transparent"
         )}
       >
-        {done && <Check className="h-2 w-2 text-white" strokeWidth={4} />}
-      </span>
+        <ConfettiBurst triggerKey={burst} count={7} />
+        <AnimatePresence>
+          {done && (
+            <motion.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 1.35, 1], opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.32, times: [0, 0.6, 1], ease: "easeOut" }}
+              className="flex items-center justify-center"
+            >
+              <Check className="h-2 w-2 text-white" strokeWidth={4} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.span>
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-[14px]",
+          "min-w-0 flex-1 truncate text-[14px] transition-colors duration-150",
           done ? "text-wp-ink-tertiary line-through" : "text-[#27272A]"
         )}
       >
