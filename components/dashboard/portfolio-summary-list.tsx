@@ -11,14 +11,14 @@ export function PortfolioSummaryList({ projects }: { projects: PortfolioProject[
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white"
+      className="mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-wp-card"
     >
       {projects.map((project) => (
         <motion.div
           key={project.id}
           layout
           variants={fadeInUp}
-          className="flex items-center gap-2 border-b border-[#F4F4F5] px-3 py-[9px] last:border-b-0"
+          className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-[9px] last:border-b-0"
         >
           <div className="min-w-0 flex-1">
             <div className="truncate text-[14px] font-semibold">{project.name}</div>

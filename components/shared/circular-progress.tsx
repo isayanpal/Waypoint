@@ -10,7 +10,7 @@ export function CircularProgress({
   size = 72,
   strokeWidth = 7,
   color = "var(--wp-accent)",
-  trackColor = "#F0F0F2",
+  trackColor = "rgba(255,255,255,0.1)",
   children,
 }: {
   pct: number;

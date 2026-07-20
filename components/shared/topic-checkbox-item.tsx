@@ -31,15 +31,15 @@ export function TopicCheckboxItem({
     <button
       type="button"
       onClick={handleClick}
-      className={cn("flex min-w-0 items-center gap-2 py-[1px] text-left", className)}
+      className={cn("flex min-w-0 items-start gap-2 py-[1px] text-left", className)}
     >
       <motion.span
-        animate={{ borderColor: done ? "var(--wp-accent)" : "#D4D4D8" }}
+        animate={{ borderColor: done ? "var(--wp-accent)" : "rgba(255,255,255,0.22)" }}
         transition={{ duration: 0.15 }}
         className={cn(
-          "relative flex shrink-0 items-center justify-center overflow-visible rounded-[4px] border-[1.5px]",
+          "relative mt-[3px] flex shrink-0 items-center justify-center overflow-visible rounded-[4px] border-[1.5px]",
           boxSize,
-          done ? "border-wp-accent bg-wp-accent" : "border-[#D4D4D8] bg-transparent"
+          done ? "border-wp-accent bg-wp-accent" : "border-white/[0.22] bg-transparent"
         )}
       >
         <ConfettiBurst triggerKey={burst} count={7} />
@@ -59,8 +59,8 @@ export function TopicCheckboxItem({
       </motion.span>
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-[14px] transition-colors duration-150",
-          done ? "text-wp-ink-tertiary line-through" : "text-[#27272A]"
+          "min-w-0 flex-1 text-[14px] leading-[1.35] transition-colors duration-150",
+          done ? "text-wp-ink-tertiary line-through" : "text-wp-ink-primary"
         )}
       >
         {label}

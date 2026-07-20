@@ -43,6 +43,8 @@
   /* Waypoint design tokens, exposed as Tailwind utilities (bg-wp-sidebar, text-wp-accent, ...) */
   --color-wp-sidebar: var(--wp-sidebar-bg);
   --color-wp-main: var(--wp-main-bg);
+  --color-wp-card: var(--wp-card-bg);
+  --color-wp-well: var(--wp-well-bg);
   --color-wp-accent: var(--wp-accent);
   --color-wp-accent-soft: var(--wp-accent-soft);
   --color-wp-card-border: var(--wp-card-border);
@@ -54,55 +56,55 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-foreground: #18181b;
-  --popover: #ffffff;
-  --popover-foreground: #18181b;
-  /* shadcn "primary" drives Button/focus states — mapped to the Waypoint accent so the
-     theme switcher (which only rewrites --wp-accent) repaints every shadcn primitive too. */
+  --background: #131715;
+  --foreground: #ecf1ef;
+  --card: #1b2320;
+  --card-foreground: #ecf1ef;
+  --popover: #1b2320;
+  --popover-foreground: #ecf1ef;
   --primary: var(--wp-accent);
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
+  --secondary: rgba(255, 255, 255, 0.05);
+  --secondary-foreground: #ecf1ef;
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: #8fa79e;
+  --accent: rgba(255, 255, 255, 0.05);
+  --accent-foreground: #ecf1ef;
   --destructive: #dc2626;
   --border: var(--wp-card-border);
   --input: var(--wp-card-border);
   --ring: var(--wp-accent);
   --radius: 0.5rem;
   --sidebar: var(--wp-sidebar-bg);
-  --sidebar-foreground: #fafafa;
+  --sidebar-foreground: #ecf1ef;
   --sidebar-primary: var(--wp-accent);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #232326;
-  --sidebar-accent-foreground: #f4f4f5;
-  --sidebar-border: #27272a;
+  --sidebar-accent: #1c2420;
+  --sidebar-accent-foreground: #ecf1ef;
+  --sidebar-border: #28322d;
   --sidebar-ring: var(--wp-accent);
 
-  /* Indigo Ink — default palette */
-  --wp-sidebar-bg: #17171b;
-  --wp-main-bg: #f7f7f8;
-  --wp-accent: #5457d6;
-  --wp-accent-soft: #b7b8ec;
-  --wp-card-border: #e4e4e7;
+  /* Waypoint — single fixed dark theme */
+  --wp-sidebar-bg: #121714;
+  --wp-main-bg: #131715;
+  --wp-card-bg: #1b2320;
+  --wp-well-bg: rgba(255, 255, 255, 0.05);
+  --wp-accent: #3fa37f;
+  --wp-accent-soft: #204536;
+  --wp-card-border: #28322d;
 
-  /* Ink/neutrals — constant across all palettes */
-  --wp-ink-primary: #1c1c21;
-  --wp-ink-secondary: #71717a;
-  --wp-ink-tertiary: #a1a1aa;
+  /* Ink/neutrals */
+  --wp-ink-primary: #ecf1ef;
+  --wp-ink-secondary: #8fa79e;
+  --wp-ink-tertiary: #5c6b65;
 
-  /* Status colors — semantic, never theme-swapped */
-  --wp-status-complete-bg: #eaf2ee;
-  --wp-status-complete-text: #3d6e58;
-  --wp-status-progress-bg: #f5f0e4;
-  --wp-status-progress-text: #8a6a2f;
-  --wp-status-notstarted-bg: #f1f1f3;
-  --wp-status-notstarted-text: #75757d;
+  /* Status colors — semantic */
+  --wp-status-complete-bg: rgba(95, 203, 158, 0.16);
+  --wp-status-complete-text: #5fcb9e;
+  --wp-status-progress-bg: rgba(224, 174, 90, 0.16);
+  --wp-status-progress-text: #e0ae5a;
+  --wp-status-notstarted-bg: rgba(255, 255, 255, 0.07);
+  --wp-status-notstarted-text: #8fa79e;
 
   /* Radii */
   --wp-radius-card: 11px;
@@ -111,24 +113,8 @@
   --wp-radius-btn: 8px;
 
   /* Shadows */
-  --wp-shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.2);
+  --wp-shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.45);
   --wp-shadow-drawer: 0 0 40px rgba(0, 0, 0, 0.35);
-}
-
-:root[data-theme="graphite_gold"] {
-  --wp-sidebar-bg: #1c1a17;
-  --wp-main-bg: #faf8f4;
-  --wp-accent: #a8813f;
-  --wp-accent-soft: #d9be8d;
-  --wp-card-border: #e9e2d6;
-}
-
-:root[data-theme="emerald_slate"] {
-  --wp-sidebar-bg: #121714;
-  --wp-main-bg: #f5f8f7;
-  --wp-accent: #2f7a63;
-  --wp-accent-soft: #9bc9bb;
-  --wp-card-border: #dee7e3;
 }
 
 @layer base {
@@ -142,5 +128,66 @@
   body {
     @apply text-wp-ink-primary;
     background: var(--wp-main-bg);
+  }
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  input,
+  textarea,
+  select {
+    color-scheme: dark;
+  }
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+  }
+}
+
+@keyframes waypoint-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waypoint-orbit-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes waypoint-counter {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes waypoint-counter-reverse {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waypoint-travel {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes waypoint-cursor {
+  0%,
+  44% {
+    opacity: 1;
+  }
+  45%,
+  100% {
+    opacity: 0;
   }
 }

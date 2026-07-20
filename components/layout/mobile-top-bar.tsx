@@ -21,7 +21,7 @@ export function MobileTopBar() {
       <button
         type="button"
         onClick={() => setMobileNavOpen(true)}
-        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[7px] border border-wp-card-border bg-white"
+        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[7px] border border-wp-card-border bg-wp-card text-wp-ink-primary"
       >
         <Menu className="h-[15px] w-[15px]" />
       </button>

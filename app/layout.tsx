@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Manrope, Inter, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/layout/theme-provider";
 import { QueryProvider } from "@/components/layout/query-provider";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["600", "700", "800"],
 });
 
 const inter = Inter({
@@ -37,14 +36,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${manrope.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
         <MotionConfig reducedMotion="user">
           <QueryProvider>
-            <ThemeProvider>
-              <TooltipProvider>{children}</TooltipProvider>
-            </ThemeProvider>
+            <TooltipProvider>{children}</TooltipProvider>
           </QueryProvider>
         </MotionConfig>
       </body>

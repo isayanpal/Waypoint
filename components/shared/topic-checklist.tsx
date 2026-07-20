@@ -35,7 +35,7 @@ export function TopicChecklist({
           done={topic.done}
           onToggle={() => onToggle(topic.id)}
           size="sm"
-          className={cn("w-full mobile:w-[290px]")}
+          className={cn("w-full mobile:w-[310px]")}
         />
       ))}
     </div>

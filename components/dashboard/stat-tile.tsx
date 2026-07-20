@@ -17,7 +17,7 @@ export function StatTile({
     <motion.div
       variants={fadeInUp}
       whileHover={hoverLift}
-      className="min-w-0 rounded-[9px] border border-wp-card-border bg-white px-[12px] py-[11px]"
+      className="min-w-0 rounded-[9px] border border-wp-card-border bg-wp-card px-[12px] py-[11px]"
     >
       <div className="truncate text-[11px] font-semibold uppercase tracking-[0.03em] text-wp-ink-secondary">
         {label}

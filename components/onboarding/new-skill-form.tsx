@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Sparkles } from "lucide-react";
 import { newSkillSchema, type NewSkillInput } from "@/lib/validations/new-skill";
@@ -36,14 +36,13 @@ export function NewSkillForm() {
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors },
   } = useForm<NewSkillInput>({
     resolver: zodResolver(newSkillSchema),
     defaultValues: { name: "", goal: "", level: "Beginner", timelineMonths: 6 },
   });
 
-  const nameValue = watch("name");
+  const nameValue = useWatch({ control, name: "name" });
   const limitReached = !!usage && usage.used >= usage.limit;
   const canSubmit = nameValue.trim().length > 0 && !limitReached && !projectLimitReached;
 
@@ -99,7 +98,7 @@ export function NewSkillForm() {
         </div>
       )}
       <div>
-        <Label htmlFor="name" className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
+        <Label htmlFor="name" className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
           Skill name
         </Label>
         <Input
@@ -111,7 +110,7 @@ export function NewSkillForm() {
       </div>
 
       <div>
-        <Label htmlFor="goal" className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
+        <Label htmlFor="goal" className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
           Goal &amp; context
         </Label>
         <Textarea
@@ -125,7 +124,7 @@ export function NewSkillForm() {
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
+          <Label className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
             Current level
           </Label>
           <Controller
@@ -146,7 +145,7 @@ export function NewSkillForm() {
           />
         </div>
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[12.5px] font-semibold text-[#3F3F46]">
+          <Label className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
             Timeline
           </Label>
           <Controller

@@ -19,7 +19,7 @@ export function MiniProgressBar({
 
   return (
     <div
-      className={cn("h-[3px] overflow-hidden rounded-full bg-[#F4F4F5]", trackClassName, className)}
+      className={cn("h-[3px] overflow-hidden rounded-full bg-white/10", trackClassName, className)}
     >
       <motion.div
         className="h-full rounded-full"

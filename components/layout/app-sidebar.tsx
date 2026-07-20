@@ -8,7 +8,6 @@ import { useUiStore } from "@/lib/stores/ui-store";
 import { useSkillProjects } from "@/lib/queries/skill-projects";
 import { SidebarNavItem } from "@/components/layout/sidebar-nav-item";
 import { SidebarSkillProjectItem } from "@/components/layout/sidebar-skill-project-item";
-import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LogoutButton } from "@/components/layout/logout-button";
 
 const MAX_SKILL_PROJECTS = 4;
@@ -47,7 +46,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           </svg>
         </div>
         {showLabels && (
-          <div className="flex-1 truncate font-heading text-[16px] font-extrabold tracking-tight text-[#FAFAFA]">
+          <div className="flex-1 truncate font-heading text-[16px] font-extrabold tracking-tight text-[#ECF1EF]">
             Waypoint
           </div>
         )}
@@ -55,7 +54,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           <button
             type="button"
             onClick={toggleSidebarCollapsed}
-            className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[#71717A] hover:bg-[#232326] hover:text-[#E4E4E7]"
+            className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-wp-ink-secondary hover:bg-[#1C2420] hover:text-wp-ink-primary"
           >
             <ChevronLeft
               className="h-3 w-3 transition-transform duration-150"
@@ -67,7 +66,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           <button
             type="button"
             onClick={closeMobileNav}
-            className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[#71717A] hover:bg-[#232326] hover:text-[#E4E4E7]"
+            className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-wp-ink-secondary hover:bg-[#1C2420] hover:text-wp-ink-primary"
           >
             <X className="h-[13px] w-[13px]" />
           </button>
@@ -98,10 +97,10 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
         />
       </nav>
 
-      <div className="mx-2 mb-3 h-px bg-[#27272A]" />
+      <div className="mx-2 mb-3 h-px bg-white/[0.08]" />
 
       {showLabels && (
-        <div className="px-[10px] pb-2 text-[11.5px] font-bold uppercase tracking-[0.06em] text-[#71717A]">
+        <div className="px-[10px] pb-2 text-[11.5px] font-bold uppercase tracking-[0.06em] text-wp-ink-secondary">
           Skill Projects
         </div>
       )}
@@ -118,14 +117,12 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
         ))}
       </div>
 
-      <ThemeSwitcher showLabel={showLabels} />
-
       <LogoutButton showLabel={showLabels} />
 
       {projectLimitReached ? (
         <div
           title={`You can only have ${MAX_SKILL_PROJECTS} skill projects at a time. Delete one to add another.`}
-          className="mt-2 flex cursor-not-allowed items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-[#3F3F46] bg-[#1B1B1D] px-[9px] py-[9px] text-[13px] font-semibold text-[#52525B]"
+          className="mt-2 flex cursor-not-allowed items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-white/[0.03] px-[9px] py-[9px] text-[13px] font-semibold text-wp-ink-tertiary"
         >
           <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
           {showLabels && "New skill"}
@@ -135,7 +132,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           href="/new-skill"
           onClick={closeMobileNav}
           className={cn(
-            "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-[#3F3F46] bg-[#232326] px-[9px] py-[9px] text-[13px] font-semibold text-[#E4E4E7] hover:bg-[#2A2A2E]"
+            "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-[#1C2420] px-[9px] py-[9px] text-[13px] font-semibold text-wp-ink-primary hover:bg-[#232B27]"
           )}
         >
           <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />

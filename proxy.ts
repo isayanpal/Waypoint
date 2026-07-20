@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/sign-in", "/sign-up"];
+const PUBLIC_EXACT_PATHS = ["/"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -29,7 +30,9 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublicPath = PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
+  const isPublicPath =
+    PUBLIC_EXACT_PATHS.includes(request.nextUrl.pathname) ||
+    PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
 
   if (!user && !isPublicPath) {
     const redirectUrl = request.nextUrl.clone();

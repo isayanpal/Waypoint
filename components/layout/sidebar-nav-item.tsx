@@ -24,14 +24,14 @@ export function SidebarNavItem({
       href={href}
       className={cn(
         "relative flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[14px] font-medium",
-        active ? "text-[#F4F4F5]" : "text-[#A1A1AA] hover:bg-[#232326] hover:text-[#F4F4F5]"
+        active ? "text-wp-ink-primary" : "text-wp-ink-secondary hover:bg-[#1C2420] hover:text-wp-ink-primary"
       )}
     >
       {active && (
         <motion.span
           layoutId="sidebar-active-pill"
           transition={{ duration: 0.22, ease: easeOut }}
-          className="absolute inset-0 rounded-[6px] bg-[#232326]"
+          className="absolute inset-0 rounded-[6px] bg-[#1C2420]"
         />
       )}
       <Icon className="relative z-10 h-[14px] w-[14px] shrink-0" strokeWidth={2} />

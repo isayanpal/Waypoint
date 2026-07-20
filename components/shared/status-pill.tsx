@@ -72,7 +72,7 @@ export function StatusPill({
 
 /** Bar color for progress bars, matching a phase/project's status. */
 export function statusBarColor(status: PhaseStatus): string {
-  if (status === "complete") return "#3D6E58";
-  if (status === "current") return "#8A6A2F";
-  return "#D4D4D8";
+  if (status === "complete") return "#5FCB9E";
+  if (status === "current") return "#E0AE5A";
+  return "rgba(255,255,255,0.2)";
 }

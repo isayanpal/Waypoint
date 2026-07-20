@@ -31,7 +31,7 @@ export function CurrentPhaseCard({
       initial="hidden"
       animate="visible"
       whileHover={hoverLift}
-      className="relative mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-white px-[18px] py-4"
+      className="relative mb-5 overflow-hidden rounded-[11px] border border-wp-card-border bg-wp-card px-[18px] py-4"
     >
       <PhaseWatermarkNumber numLabel={numLabel} size={112} />
       <div className="relative z-10">
@@ -42,13 +42,13 @@ export function CurrentPhaseCard({
             <Link
               href={`/roadmap/${projectId}`}
               title="View full roadmap"
-              className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-wp-ink-secondary hover:bg-wp-main hover:text-wp-ink-primary"
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-wp-ink-secondary hover:bg-wp-well hover:text-wp-ink-primary"
             >
               <ArrowRight className="h-[13px] w-[13px]" strokeWidth={2.2} />
             </Link>
           </div>
         </div>
-        <MiniProgressBar pct={pct} color="#8A6A2F" className="my-[8px] h-[5px]" />
+        <MiniProgressBar pct={pct} color="#E0AE5A" className="my-[8px] h-[5px]" />
         <TopicChecklist
           topics={phase.topics}
           layout="list"

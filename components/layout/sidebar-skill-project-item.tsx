@@ -22,7 +22,7 @@ export function SidebarSkillProjectItem({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 rounded-[7px] px-[9px] py-[7px] hover:bg-[#232326]">
+    <div className="flex items-center gap-2 rounded-[7px] px-[9px] py-[7px] hover:bg-[#1C2420]">
       <Link
         href={`/dashboard/${project.id}`}
         onClick={onNavigate}
@@ -31,7 +31,7 @@ export function SidebarSkillProjectItem({
         <div
           className={cn(
             "flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[7px]",
-            isActive ? "bg-wp-accent text-white" : "bg-[#232326] text-[#A1A1AA]"
+            isActive ? "bg-wp-accent text-white" : "bg-[#1C2420] text-wp-ink-secondary"
           )}
         >
           <Folder className="h-[14px] w-[14px]" strokeWidth={2} />
@@ -41,7 +41,7 @@ export function SidebarSkillProjectItem({
             <div
               className={cn(
                 "truncate text-[13px] font-semibold",
-                isActive ? "text-[#F4F4F5]" : "text-[#A1A1AA]"
+                isActive ? "text-wp-ink-primary" : "text-wp-ink-secondary"
               )}
             >
               {project.name}
@@ -49,9 +49,9 @@ export function SidebarSkillProjectItem({
             <div className="mt-[3px] flex items-center gap-[5px]">
               <MiniProgressBar
                 pct={project.progressPct}
-                className="flex-1 bg-[#3F3F46]"
+                className="flex-1 bg-white/10"
               />
-              <div className="shrink-0 font-mono text-[11px] text-[#71717A]">
+              <div className="shrink-0 font-mono text-[11px] text-wp-ink-tertiary">
                 {project.progressPct}%
               </div>
             </div>
@@ -62,7 +62,7 @@ export function SidebarSkillProjectItem({
         <button
           type="button"
           onClick={() => setConfirmOpen(true)}
-          className="flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-[5px] text-[#52525B] hover:bg-[#3F3F46] hover:text-[#F87171]"
+          className="flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-[5px] text-wp-ink-tertiary hover:bg-white/10 hover:text-[#F87171]"
         >
           <Trash2 className="h-[11px] w-[11px]" strokeWidth={2} />
         </button>

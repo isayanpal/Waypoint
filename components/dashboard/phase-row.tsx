@@ -15,7 +15,7 @@ export function PhaseRow({ phase, numLabel }: { phase: Phase; numLabel: string }
     <motion.div
       layout
       variants={fadeInUp}
-      className="flex items-center gap-2 border-b border-[#F4F4F5] px-3 py-[9px] last:border-b-0"
+      className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-[9px] last:border-b-0"
     >
       <div className="w-4 shrink-0 font-mono text-[11.5px] text-wp-ink-tertiary">{numLabel}</div>
       <div className="min-w-0 flex-1 truncate text-[14px] font-medium">{phase.name}</div>

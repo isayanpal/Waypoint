@@ -16,9 +16,9 @@ export function ProgressCard({ currentPhase }: { currentPhase: Phase }) {
       initial="hidden"
       animate="visible"
       whileHover={hoverLift}
-      className="mb-[18px] flex w-full items-center gap-[18px] rounded-[11px] border border-wp-card-border bg-white px-[18px] py-[14px]"
+      className="mb-[18px] flex w-full items-center gap-[18px] rounded-[11px] border border-wp-card-border bg-wp-card px-[18px] py-[14px]"
     >
-      <CircularProgress pct={pct} size={64} strokeWidth={6} color="#8A6A2F">
+      <CircularProgress pct={pct} size={64} strokeWidth={6} color="#E0AE5A">
         <span className="font-heading text-[15px] font-bold text-wp-ink-primary">{pct}%</span>
       </CircularProgress>
       <div className="min-w-0">

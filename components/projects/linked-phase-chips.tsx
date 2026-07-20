@@ -21,7 +21,7 @@ export function LinkedPhaseChips({
           <Link
             key={phaseId}
             href={`/roadmap/${projectId}`}
-            className="whitespace-nowrap rounded-[5px] border border-wp-card-border bg-white px-[8px] py-[2px] text-[11px] font-semibold text-wp-ink-secondary hover:text-wp-ink-primary"
+            className="whitespace-nowrap rounded-[5px] border border-wp-card-border bg-wp-well px-[8px] py-[2px] text-[11px] font-semibold text-wp-ink-secondary hover:text-wp-ink-primary"
           >
             Phase {phaseNumberById.get(phaseId)} &mdash; {phase.name}
           </Link>

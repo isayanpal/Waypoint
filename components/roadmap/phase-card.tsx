@@ -18,7 +18,7 @@ export function PhaseCard({
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-[11px] border border-wp-card-border bg-white px-[18px] py-[14px]">
+    <div className="relative overflow-hidden rounded-[11px] border border-wp-card-border bg-wp-card px-[18px] py-[14px]">
       <PhaseWatermarkNumber numLabel={numLabel} size={98} />
       <div className="relative z-10">
         <div className="mb-[2px] flex flex-wrap items-center gap-[9px]">

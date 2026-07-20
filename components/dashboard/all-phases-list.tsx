@@ -11,7 +11,7 @@ export function AllPhasesList({ phases }: { phases: Phase[] }) {
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="overflow-hidden rounded-[11px] border border-wp-card-border bg-white"
+      className="overflow-hidden rounded-[11px] border border-wp-card-border bg-wp-card"
     >
       {phases.map((phase, i) => (
         <PhaseRow key={phase.id} phase={phase} numLabel={String(i + 1).padStart(2, "0")} />
