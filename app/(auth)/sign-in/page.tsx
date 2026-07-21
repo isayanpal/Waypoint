@@ -15,11 +15,11 @@ export default function SignInPage() {
             Sign up
           </Link>
         </div>
-        <CardTitle className="font-heading text-[22px] font-extrabold tracking-tight">Welcome back</CardTitle>
+        <CardTitle className="font-heading text-[24px] font-extrabold tracking-tight">Welcome back</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <SignInForm />
-        <p className="text-center text-xs text-wp-ink-secondary">
+        <p className="text-center text-[13px] text-wp-ink-secondary">
           New here?{" "}
           <Link href="/sign-up" className="font-semibold text-wp-accent">
             Sign up

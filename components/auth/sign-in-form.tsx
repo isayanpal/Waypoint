@@ -45,10 +45,13 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="identifier">Username</Label>
+        <Label htmlFor="identifier" className="text-[12.5px] font-semibold text-wp-ink-secondary">
+          Username
+        </Label>
         <Input
           id="identifier"
           autoComplete="username"
+          className="h-auto rounded-[9px] px-[13px] py-[11px] text-[13.5px]"
           {...register("identifier")}
         />
         {errors.identifier && (
@@ -58,13 +61,15 @@ export function SignInForm() {
         )}
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-[12.5px] font-semibold text-wp-ink-secondary">
+          Password
+        </Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
-            className="pr-10"
+            className="h-auto rounded-[9px] px-[13px] py-[11px] pr-10 text-[13.5px]"
             {...register("password")}
           />
           <button
@@ -86,7 +91,11 @@ export function SignInForm() {
         )}
       </div>
       {serverError && <p className="text-xs text-destructive">{serverError}</p>}
-      <Button type="submit" disabled={pending} className="mt-1">
+      <Button
+        type="submit"
+        disabled={pending}
+        className="mt-1 h-auto rounded-[9px] py-[13px] text-[13.5px] font-bold"
+      >
         {pending && <Spinner />}
         {pending ? "Signing in…" : "Sign in"}
       </Button>

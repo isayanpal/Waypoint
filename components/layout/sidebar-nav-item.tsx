@@ -23,7 +23,7 @@ export function SidebarNavItem({
     <Link
       href={href}
       className={cn(
-        "relative flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[14px] font-medium",
+        "relative flex items-center gap-[9px] overflow-hidden whitespace-nowrap rounded-[6px] px-[10px] py-[7px] text-[12px] font-medium",
         active ? "text-wp-ink-primary" : "text-wp-ink-secondary hover:bg-[#1C2420] hover:text-wp-ink-primary"
       )}
     >

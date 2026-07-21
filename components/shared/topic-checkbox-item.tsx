@@ -59,7 +59,8 @@ export function TopicCheckboxItem({
       </motion.span>
       <span
         className={cn(
-          "min-w-0 flex-1 text-[14px] leading-[1.35] transition-colors duration-150",
+          "min-w-0 flex-1 leading-[1.35] transition-colors duration-150",
+          size === "sm" ? "text-[11.5px]" : "text-[12px]",
           done ? "text-wp-ink-tertiary line-through" : "text-wp-ink-primary"
         )}
       >

@@ -40,7 +40,7 @@ export function SidebarSkillProjectItem({
           <div className="min-w-0 flex-1">
             <div
               className={cn(
-                "truncate text-[13px] font-semibold",
+                "truncate text-[11.5px] font-semibold",
                 isActive ? "text-wp-ink-primary" : "text-wp-ink-secondary"
               )}
             >
@@ -51,7 +51,7 @@ export function SidebarSkillProjectItem({
                 pct={project.progressPct}
                 className="flex-1 bg-white/10"
               />
-              <div className="shrink-0 font-mono text-[11px] text-wp-ink-tertiary">
+              <div className="shrink-0 font-mono text-[9.5px] text-wp-ink-secondary">
                 {project.progressPct}%
               </div>
             </div>

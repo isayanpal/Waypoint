@@ -33,7 +33,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
   return (
     <div
       className={cn(
-        "flex h-full flex-col overflow-hidden bg-wp-sidebar p-3 transition-[width] duration-150",
+        "flex h-full flex-col overflow-hidden bg-wp-sidebar px-3 py-4 transition-[width] duration-150",
         !isMobile && (sidebarCollapsed ? "w-[68px]" : "w-[232px]")
       )}
     >
@@ -46,7 +46,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           </svg>
         </div>
         {showLabels && (
-          <div className="flex-1 truncate font-heading text-[16px] font-extrabold tracking-tight text-[#ECF1EF]">
+          <div className="flex-1 truncate font-heading text-[14px] font-extrabold tracking-tight text-[#ECF1EF]">
             Waypoint
           </div>
         )}
@@ -100,7 +100,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
       <div className="mx-2 mb-3 h-px bg-white/[0.08]" />
 
       {showLabels && (
-        <div className="px-[10px] pb-2 text-[11.5px] font-bold uppercase tracking-[0.06em] text-wp-ink-secondary">
+        <div className="px-[10px] pb-2 text-[10px] font-bold uppercase tracking-[0.06em] text-wp-ink-secondary">
           Skill Projects
         </div>
       )}
@@ -122,7 +122,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
       {projectLimitReached ? (
         <div
           title={`You can only have ${MAX_SKILL_PROJECTS} skill projects at a time. Delete one to add another.`}
-          className="mt-2 flex cursor-not-allowed items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-white/[0.03] px-[9px] py-[9px] text-[13px] font-semibold text-wp-ink-tertiary"
+          className="mt-2 flex cursor-not-allowed items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-white/[0.03] px-[9px] py-[9px] text-[11.5px] font-semibold text-wp-ink-tertiary"
         >
           <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
           {showLabels && "New skill"}
@@ -132,7 +132,7 @@ export function AppSidebar({ variant = "desktop" }: { variant?: "desktop" | "mob
           href="/new-skill"
           onClick={closeMobileNav}
           className={cn(
-            "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-[#1C2420] px-[9px] py-[9px] text-[13px] font-semibold text-wp-ink-primary hover:bg-[#232B27]"
+            "mt-2 flex items-center justify-center gap-[6px] overflow-hidden whitespace-nowrap rounded-[7px] border border-wp-card-border bg-[#1C2420] px-[9px] py-[9px] text-[11.5px] font-semibold text-wp-ink-primary hover:bg-[#232B27]"
           )}
         >
           <Plus className="h-3 w-3 shrink-0" strokeWidth={2.5} />

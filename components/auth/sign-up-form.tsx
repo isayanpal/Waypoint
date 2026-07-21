@@ -60,20 +60,29 @@ export function SignUpForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="username">Username</Label>
-        <Input id="username" autoComplete="username" {...register("username")} />
+        <Label htmlFor="username" className="text-[12.5px] font-semibold text-wp-ink-secondary">
+          Username
+        </Label>
+        <Input
+          id="username"
+          autoComplete="username"
+          className="h-auto rounded-[9px] px-[13px] py-[11px] text-[13.5px]"
+          {...register("username")}
+        />
         {errors.username && (
           <p className="text-xs text-destructive">{errors.username.message}</p>
         )}
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-[12.5px] font-semibold text-wp-ink-secondary">
+          Password
+        </Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
-            className="pr-10"
+            className="h-auto rounded-[9px] px-[13px] py-[11px] pr-10 text-[13.5px]"
             {...register("password")}
           />
           <button
@@ -91,7 +100,11 @@ export function SignUpForm() {
         )}
       </div>
       {serverError && <p className="text-xs text-destructive">{serverError}</p>}
-      <Button type="submit" disabled={pending} className="mt-1">
+      <Button
+        type="submit"
+        disabled={pending}
+        className="mt-1 h-auto rounded-[9px] py-[13px] text-[13.5px] font-bold"
+      >
         {pending && <Spinner />}
         {pending ? "Creating account…" : "Create account"}
       </Button>

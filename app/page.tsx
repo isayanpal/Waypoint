@@ -1,5 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { ArrowRight, Layers3, Map, Target } from "lucide-react";
 import Link from "next/link";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { cn } from "@/lib/utils";
 
 const features = [
   {
@@ -119,12 +124,18 @@ function ProductPreview() {
     "Background jobs",
   ];
   return (
-    <section className="mx-auto w-full max-w-[1040px] px-4">
+    <motion.section
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      className="mx-auto w-full max-w-[1040px] px-4"
+    >
       <div className="overflow-hidden rounded-[18px] border border-wp-card-border bg-[#0F1211] shadow-2xl">
         <div className="flex items-center gap-2 border-b border-wp-card-border px-4 py-3">
-          <div className="h-2.5 w-2.5 rounded-full bg-[#FF6B6B]/70" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#E0AE5A]/80" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#5FCB9E]/80" />
+          <div className="h-2.5 w-2.5 rounded-full bg-wp-card-border" />
+          <div className="h-2.5 w-2.5 rounded-full bg-wp-card-border" />
+          <div className="h-2.5 w-2.5 rounded-full bg-wp-card-border" />
           <div className="ml-3 h-6 flex-1 rounded-full bg-white/[0.04]" />
         </div>
         <div className="grid gap-4 bg-wp-main p-5 md:grid-cols-[1.3fr_1fr]">
@@ -134,7 +145,7 @@ function ProductPreview() {
             </div>
             <div className="relative">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="truncate font-heading text-[17px] font-bold">
+                <h3 className="truncate font-heading text-[15px] font-bold">
                   Systems & APIs
                 </h3>
                 <span className="rounded-full bg-[rgba(224,174,90,0.16)] px-3 py-1 text-[11px] font-bold text-[#E0AE5A]">
@@ -203,14 +214,49 @@ function ProductPreview() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
 export default function LandingPage() {
+  const { scrollY } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
+  useMotionValueEvent(scrollY, "change", (latest) => setScrolled(latest > 12));
+
+  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
+  const heroY = useTransform(scrollY, [0, 500], [0, 40]);
+  const orb1Y = useTransform(scrollY, [0, 1000], [0, 80]);
+  const orb2Y = useTransform(scrollY, [0, 1000], [0, -50]);
+
   return (
-    <main className="min-h-screen overflow-hidden bg-wp-main text-wp-ink-primary">
-      <nav className="sticky top-0 z-30 border-b border-white/[0.06] bg-wp-main/86 backdrop-blur">
+    <main className="relative min-h-screen overflow-hidden bg-wp-main text-wp-ink-primary">
+      <motion.div
+        aria-hidden
+        style={{ y: orb1Y }}
+        className="pointer-events-none absolute -left-[160px] -top-[220px] h-[560px] w-[560px]"
+      >
+        <div
+          className="h-full w-full rounded-full bg-[radial-gradient(circle,rgba(63,163,127,0.22)_0%,transparent_70%)]"
+          style={{ animation: "waypoint-float-orb 16s ease-in-out infinite" }}
+        />
+      </motion.div>
+      <motion.div
+        aria-hidden
+        style={{ y: orb2Y }}
+        className="pointer-events-none absolute -right-[180px] top-[120px] h-[480px] w-[480px]"
+      >
+        <div
+          className="h-full w-full rounded-full bg-[radial-gradient(circle,rgba(63,163,127,0.14)_0%,transparent_70%)]"
+          style={{ animation: "waypoint-float-orb 20s ease-in-out infinite reverse" }}
+        />
+      </motion.div>
+
+      <nav
+        className={cn(
+          "sticky top-0 z-30 border-b transition-colors duration-300",
+          scrolled ? "border-white/[0.06] bg-wp-main/86 backdrop-blur" : "border-transparent bg-transparent"
+        )}
+      >
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-4">
           <Logo />
           <Link
@@ -222,69 +268,86 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      <section className="mx-auto grid min-h-[calc(100vh-64px)] max-w-[1120px] items-center gap-10 px-4 py-14 md:grid-cols-[0.95fr_1.05fr]">
+      <motion.section
+        style={{ opacity: heroOpacity, y: heroY }}
+        className="relative mx-auto grid min-h-[calc(100vh-64px)] max-w-[1120px] items-center gap-10 px-4 py-14 md:grid-cols-[0.95fr_1.05fr]"
+      >
         <AtomVisual />
         <div className="relative z-10">
-          <div className="mb-5 inline-flex rounded-full border border-[#5FCB9E]/25 bg-[rgba(95,203,158,0.10)] px-3 py-1 text-[12px] font-bold text-[#5FCB9E]">
+          <div className="mb-5 inline-flex items-center gap-[7px] rounded-full border border-[#5FCB9E]/25 bg-[rgba(95,203,158,0.10)] px-3 py-1 text-[11.5px] font-bold text-[#5FCB9E]">
+            <span
+              className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#5FCB9E]"
+              style={{ animation: "waypoint-soft-pulse 2s ease-in-out infinite" }}
+            />
             Personal learning roadmap platform
           </div>
-          <h1 className="max-w-[640px] font-heading text-[52px] font-extrabold leading-[1.02] tracking-tight md:text-[70px]">
+          <h1 className="max-w-[640px] font-heading text-[50px] font-extrabold leading-[1.08] tracking-tight">
             Learn anything. Actually finish it.
           </h1>
-          <p className="mt-5 max-w-[540px] text-[16px] leading-7 text-wp-ink-secondary">
+          <p className="mt-5 max-w-[540px] text-[15.5px] leading-7 text-wp-ink-secondary">
             Turn a skill goal into a phase-by-phase roadmap, project brief, and
             topic checklist you can keep moving through.
           </p>
           <Link
             href="/sign-up"
-            className="mt-8 inline-flex items-center gap-2 rounded-[9px] bg-wp-accent px-5 py-3 text-[14px] font-bold text-white shadow-[0_0_30px_rgba(63,163,127,0.28)] hover:bg-[#4BAF8B]"
+            className="mt-8 inline-flex items-center gap-2 rounded-[11px] bg-wp-accent px-[30px] py-[14px] text-[14.5px] font-bold text-white shadow-[0_0_30px_rgba(63,163,127,0.28)] transition-transform duration-200 hover:-translate-y-[2px] hover:bg-[#4BAF8B]"
           >
             Start your first roadmap
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </section>
+      </motion.section>
 
       <ProductPreview />
 
       <section className="mx-auto grid max-w-[1120px] gap-4 px-4 py-20 md:grid-cols-3">
-        {features.map((feature) => (
-          <div
+        {features.map((feature, i) => (
+          <motion.div
             key={feature.title}
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 }}
             className="rounded-[12px] border border-wp-card-border bg-wp-card p-5"
           >
             <feature.icon className="h-5 w-5 text-[#5FCB9E]" />
-            <h2 className="mt-5 font-heading text-[18px] font-bold">
+            <h2 className="mt-5 font-heading text-[15.5px] font-bold">
               {feature.title}
             </h2>
             <p className="mt-3 text-[13px] leading-6 text-wp-ink-secondary">
               {feature.body}
             </p>
-          </div>
+          </motion.div>
         ))}
       </section>
 
-      <section className="mx-auto max-w-[1120px] px-4 pb-16">
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="mx-auto max-w-[1120px] px-4 pb-16"
+      >
         <div className="relative overflow-hidden rounded-[18px] border border-wp-card-border bg-[#102019] px-6 py-10 text-center">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(95,203,158,0.25),transparent_45%)]" />
           <div className="relative mx-auto max-w-[620px]">
-            <h2 className="font-heading text-[34px] font-extrabold tracking-tight">
+            <h2 className="font-heading text-[30px] font-extrabold tracking-tight">
               Build proof while you learn.
             </h2>
-            <p className="mt-3 text-[15px] leading-7 text-wp-ink-secondary">
+            <p className="mt-3 text-[14px] leading-7 text-wp-ink-secondary">
               One roadmap per skill. Phases, topics, and portfolio work stay
               connected.
             </p>
             <Link
               href="/sign-up"
-              className="mt-6 inline-flex items-center gap-2 rounded-[9px] bg-wp-accent px-5 py-3 text-[14px] font-bold text-white hover:bg-[#4BAF8B]"
+              className="mt-6 inline-flex items-center gap-2 rounded-[10px] bg-wp-accent px-[28px] py-[13px] text-[14.5px] font-bold text-white transition-transform duration-200 hover:-translate-y-[2px] hover:bg-[#4BAF8B]"
             >
               Start your first roadmap
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       <footer className="border-t border-white/[0.06] px-4 py-8">
         <div className="mx-auto flex max-w-[1120px] items-center justify-between gap-4 text-[12px] text-wp-ink-tertiary">

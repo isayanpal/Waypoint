@@ -21,10 +21,10 @@ export function PortfolioSummaryList({ projects }: { projects: PortfolioProject[
           className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-[9px] last:border-b-0"
         >
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[14px] font-semibold">{project.name}</div>
-            <div className="truncate text-[11.5px] text-wp-ink-tertiary">{project.timeline}</div>
+            <div className="truncate text-[12px] font-semibold">{project.name}</div>
+            <div className="truncate text-[10px] text-wp-ink-tertiary">{project.timeline}</div>
           </div>
-          <StatusPill status={project.status} />
+          <StatusPill status={project.status} className="px-[7px] py-[2px] text-[9px]" />
         </motion.div>
       ))}
     </motion.div>

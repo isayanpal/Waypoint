@@ -98,25 +98,27 @@ export function NewSkillForm() {
         </div>
       )}
       <div>
-        <Label htmlFor="name" className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
+        <Label htmlFor="name" className="mb-[5px] block text-[11px] font-semibold text-wp-ink-secondary">
           Skill name
         </Label>
         <Input
           id="name"
           placeholder="e.g. Frontend performance engineering"
+          className="h-auto rounded-[7px] px-[11px] py-[9px] text-[12px]"
           {...register("name")}
         />
         {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
       </div>
 
       <div>
-        <Label htmlFor="goal" className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
+        <Label htmlFor="goal" className="mb-[5px] block text-[11px] font-semibold text-wp-ink-secondary">
           Goal &amp; context
         </Label>
         <Textarea
           id="goal"
           rows={3}
           placeholder="What do you want to be able to do, and why?"
+          className="rounded-[7px] px-[11px] py-[9px] text-[12px]"
           {...register("goal")}
         />
         {errors.goal && <p className="mt-1 text-xs text-destructive">{errors.goal.message}</p>}
@@ -124,7 +126,7 @@ export function NewSkillForm() {
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
+          <Label className="mb-[5px] block text-[11px] font-semibold text-wp-ink-secondary">
             Current level
           </Label>
           <Controller
@@ -132,7 +134,7 @@ export function NewSkillForm() {
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="h-auto w-full rounded-[7px] px-[11px] py-[9px] text-[12px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -145,7 +147,7 @@ export function NewSkillForm() {
           />
         </div>
         <div className="flex-1">
-          <Label className="mb-[5px] block text-[12.5px] font-semibold text-wp-ink-secondary">
+          <Label className="mb-[5px] block text-[11px] font-semibold text-wp-ink-secondary">
             Timeline
           </Label>
           <Controller
@@ -156,8 +158,8 @@ export function NewSkillForm() {
                 value={String(field.value)}
                 onValueChange={(v) => field.onChange(Number(v))}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
+                <SelectTrigger className="h-auto w-full rounded-[7px] px-[11px] py-[9px] text-[12px]">
+                  <SelectValue>{(value: string) => `${value} months`}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="3">3 months</SelectItem>
@@ -176,7 +178,7 @@ export function NewSkillForm() {
         type="submit"
         disabled={!canSubmit}
         className={cn(
-          "mt-1 inline-flex w-fit items-center gap-[7px] rounded-[7px] px-[18px] py-[10px] text-[14px] font-semibold text-white",
+          "mt-1 inline-flex w-fit items-center gap-[7px] rounded-[7px] px-[18px] py-[10px] text-[12px] font-semibold text-white",
           canSubmit ? "bg-wp-accent" : "bg-wp-accent-soft"
         )}
       >

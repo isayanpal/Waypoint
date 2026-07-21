@@ -25,7 +25,7 @@ export function MobileTopBar() {
       >
         <Menu className="h-[15px] w-[15px]" />
       </button>
-      <div className="font-heading text-[16px] font-bold">{title}</div>
+      <div className="font-heading text-[14px] font-bold">{title}</div>
     </div>
   );
 }

@@ -26,7 +26,7 @@ export function StatusPill({
 }) {
   const style = STATUS_STYLES[status];
   const pillClassName = cn(
-    "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[11.5px] font-bold",
+    "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-[10px] py-[3px] text-[10px] font-bold",
     onClick && "cursor-pointer",
     className
   );

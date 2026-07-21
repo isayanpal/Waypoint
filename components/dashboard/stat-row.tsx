@@ -8,7 +8,7 @@ import type { DashboardStats } from "@/lib/domain/dashboard-stats";
 export function StatRow({ stats }: { stats: DashboardStats }) {
   const tiles = [
     { label: "Phases done", value: `${stats.phasesComplete}/${stats.phaseCount}` },
-    { label: "Overall progress", value: `${stats.progressPct}%`, color: "var(--wp-accent)" },
+    { label: "Progress", value: `${stats.progressPct}%`, color: "var(--wp-accent)" },
     { label: "Topics left", value: String(stats.topicsLeft) },
     { label: "Projects built", value: String(stats.projectsBuilt) },
     { label: "Projects active", value: String(stats.projectsActive) },

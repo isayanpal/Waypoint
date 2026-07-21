@@ -33,21 +33,21 @@ export function ProjectCard({
         <ProjectIndexNumber index={index} />
         <div className="min-w-0 flex-1">
           <div className="mb-[7px] flex flex-wrap items-center gap-[9px]">
-            <div className="font-heading text-[17px] font-bold">{project.name}</div>
+            <div className="font-heading text-[15px] font-bold">{project.name}</div>
             {project.difficulty && (
-              <div className="whitespace-nowrap rounded-full bg-wp-well px-[8px] py-[2px] text-[11px] font-bold text-wp-ink-secondary">
+              <div className="whitespace-nowrap rounded-full bg-wp-well px-[8px] py-[2px] text-[9.5px] font-bold text-wp-ink-secondary">
                 {project.difficulty}
               </div>
             )}
             {project.timeline && (
-              <div className="whitespace-nowrap text-[12px] text-wp-ink-tertiary">
+              <div className="whitespace-nowrap text-[10.5px] text-wp-ink-tertiary">
                 {project.timeline}
               </div>
             )}
             <StatusPill status={project.status} onClick={onCycleStatus} className="ml-auto" />
           </div>
 
-          <div className="mb-3 max-w-[640px] text-[14.5px] leading-[1.55] text-wp-ink-secondary">
+          <div className="mb-3 max-w-[640px] text-[12.5px] leading-[1.55] text-wp-ink-secondary">
             {project.description} {project.hook}
           </div>
 
@@ -56,7 +56,7 @@ export function ProjectCard({
               {project.stack.map((chip) => (
                 <div
                   key={chip}
-                  className="whitespace-nowrap rounded-[5px] bg-wp-well px-[8px] py-[2px] text-[11px] font-semibold text-wp-ink-secondary"
+                  className="whitespace-nowrap rounded-[5px] bg-wp-well px-[8px] py-[2px] text-[9.5px] font-semibold text-wp-ink-secondary"
                 >
                   {chip}
                 </div>
@@ -65,7 +65,7 @@ export function ProjectCard({
           )}
 
           {project.proves && (
-            <div className="mb-3 rounded-[8px] bg-[rgba(63,163,127,0.10)] px-3 py-[10px] text-[13px] leading-[1.55] text-wp-ink-secondary">
+            <div className="mb-3 rounded-[8px] bg-[rgba(63,163,127,0.10)] px-3 py-[10px] text-[11.5px] leading-[1.55] text-wp-ink-secondary">
               <span className="font-bold text-wp-ink-primary">What it proves &middot; </span>
               {project.proves}
             </div>
@@ -75,7 +75,7 @@ export function ProjectCard({
 
           <Link
             href={`/roadmap/${projectId}`}
-            className="block rounded-[8px] border border-wp-card-border py-[9px] text-center text-[14px] font-semibold hover:bg-wp-well"
+            className="block rounded-[8px] border border-wp-card-border py-[9px] text-center text-[12px] font-semibold hover:bg-wp-well"
           >
             View this project&apos;s roadmap phases &rarr;
           </Link>

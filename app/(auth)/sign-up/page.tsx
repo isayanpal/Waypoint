@@ -15,11 +15,11 @@ export default function SignUpPage() {
             Sign up
           </Link>
         </div>
-        <CardTitle className="font-heading text-[22px] font-extrabold tracking-tight">Create account</CardTitle>
+        <CardTitle className="font-heading text-[24px] font-extrabold tracking-tight">Create account</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <SignUpForm />
-        <p className="text-center text-xs text-wp-ink-secondary">
+        <p className="text-center text-[13px] text-wp-ink-secondary">
           Already have an account?{" "}
           <Link href="/sign-in" className="font-semibold text-wp-accent">
             Sign in

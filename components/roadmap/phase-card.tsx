@@ -22,18 +22,18 @@ export function PhaseCard({
       <PhaseWatermarkNumber numLabel={numLabel} size={98} />
       <div className="relative z-10">
         <div className="mb-[2px] flex flex-wrap items-center gap-[9px]">
-          <div className="min-w-[140px] flex-1 font-heading text-[15.5px] font-bold">
+          <div className="min-w-[140px] flex-1 font-heading text-[13.5px] font-bold">
             {phase.name}
           </div>
-          <div className="font-mono text-[12px] text-wp-ink-secondary">
+          <div className="font-mono text-[10.5px] text-wp-ink-secondary">
             {done}/{total}
           </div>
-          <StatusPill status={phase.status} />
+          <StatusPill status={phase.status} className="px-[8px] py-[2px] text-[9.5px]" />
         </div>
         <MiniProgressBar
           pct={pct}
           color={statusBarColor(phase.status)}
-          className="my-[7px] h-1 max-w-[520px]"
+          className="mt-[7px] mb-[11px] h-1 max-w-[520px]"
         />
         <TopicChecklist topics={phase.topics} layout="wrap" onToggle={onToggleTopic} />
       </div>

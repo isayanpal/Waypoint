@@ -31,10 +31,10 @@ export default function DashboardPage() {
   return (
     <div className="w-full max-w-[1180px] px-[14px] py-4 pb-8 mobile:px-[30px] mobile:py-[22px] mobile:pb-11">
       <div className="mb-4 flex flex-col gap-[2px]">
-        <div className="truncate font-heading text-[22px] font-extrabold tracking-tight">
+        <div className="truncate font-heading text-[19px] font-extrabold tracking-tight">
           {project.name}
         </div>
-        <div className="text-[12.5px] text-wp-ink-secondary">Dashboard overview</div>
+        <div className="text-[11px] text-wp-ink-secondary">Dashboard overview</div>
       </div>
 
       <StatRow stats={stats} />

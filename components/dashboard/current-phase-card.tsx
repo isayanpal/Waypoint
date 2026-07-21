@@ -36,7 +36,7 @@ export function CurrentPhaseCard({
       <PhaseWatermarkNumber numLabel={numLabel} size={112} />
       <div className="relative z-10">
         <div className="mb-[2px] flex items-center justify-between gap-[10px]">
-          <div className="min-w-0 truncate font-heading text-[16px] font-bold">{phase.name}</div>
+          <div className="min-w-0 truncate font-heading text-[14px] font-bold">{phase.name}</div>
           <div className="flex shrink-0 items-center gap-[6px]">
             <FractionBadge done={done} total={total} />
             <Link
@@ -48,7 +48,7 @@ export function CurrentPhaseCard({
             </Link>
           </div>
         </div>
-        <MiniProgressBar pct={pct} color="#E0AE5A" className="my-[8px] h-[5px]" />
+        <MiniProgressBar pct={pct} color="#E0AE5A" className="mt-[8px] mb-[14px] h-[5px]" />
         <TopicChecklist
           topics={phase.topics}
           layout="list"
